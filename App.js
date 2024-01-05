@@ -1,14 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { Navigator } from './config/navigator';
-import { Provider as PaperProvider, Menu, Divider } from 'react-native-paper';
-
+import { TasksProvider } from './config/tasksContext';
 
 export default function App() {
-  return (  
-      <NavigationContainer>
+  return (
+    <NavigationContainer>
+      <TasksProvider>
         <Navigator />
-      </NavigationContainer>
+      </TasksProvider>
+    </NavigationContainer>
   );
 }
