@@ -4,6 +4,4 @@ Libraries:
 @react-native-community/datetimepicker
 @react-navigation/native"
 @react-navigation/stack"
-expo-sqlite
-expo-status-bar
 react-native-paper
