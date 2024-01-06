@@ -43,7 +43,7 @@ const TaskDetails = ({ route, navigation }) => {
     await saveTasksToStorage(updatedTasks);
 
     // Navigate back to the task list
-    navigation.navigate("ToDoList");
+    navigation.navigate("TaskList");
   };
 
   const deleteTask = async () => {
@@ -65,7 +65,7 @@ const TaskDetails = ({ route, navigation }) => {
           await saveTasksToStorage(updatedTasks);
 
           // Navigate back to the task list
-          navigation.navigate("ToDoList");
+          navigation.navigate("TaskList");
         },
         style: "destructive",
       },
@@ -73,8 +73,8 @@ const TaskDetails = ({ route, navigation }) => {
   };
 
   const editTask = () => {
-    // Navigate to the ToDoTask screen for editing
-    navigation.navigate("ToDoTask", { taskId });
+    // Navigate to the TaskOps screen for editing
+    navigation.navigate("TaskOps", { taskId });
   };
 
   const formatDate = (dateString) => {
@@ -84,14 +84,14 @@ const TaskDetails = ({ route, navigation }) => {
       weekday: "long",
     });
   };
-  
+
   const formatTime = (timeString) => {
     return new Date(timeString).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
   };
-  
+
 
   return (
     <View style={styles.container}>
@@ -109,7 +109,7 @@ const TaskDetails = ({ route, navigation }) => {
               <View style={styles.taskInfo}>
                 <Icon source="calendar" color="black" size={24} />
                 <Text style={styles.taskText}>
-                {`${taskDetails.dueDate ? formatDate(taskDetails.dueDate) : "N/A"}`}
+                  {`${taskDetails.dueDate ? formatDate(taskDetails.dueDate) : "N/A"}`}
                 </Text>
               </View>
               <View style={styles.taskInfo}>
@@ -119,11 +119,6 @@ const TaskDetails = ({ route, navigation }) => {
                 </Text>
               </View>
 
-              <View style={styles.taskInfo}>
-                <Icon source="alert-outline" color="black" size={24} />
-                <Text style={styles.taskText}>{`Priority: ${taskDetails.priority || "N/A"
-                  }`}</Text>
-              </View>
               <View style={styles.taskInfo}>
                 <Icon source="progress-check" color="black" size={24} />
                 <Text style={styles.taskText}>{`Completed: ${taskDetails.completed ? "Yes" : "No"

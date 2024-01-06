@@ -1,4 +1,4 @@
-// ToDoList.js
+// TaskList.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,7 +13,7 @@ import { Menu, Provider, Divider, Icon } from "react-native-paper";
 import { saveTasksToStorage, fetchTasksFromStorage } from "../config/dbHelper";
 import { useTasks } from "../config/tasksContext";
 
-const ToDoList = ({ navigation }) => {
+const TaskList = ({ navigation }) => {
   const { state, dispatch } = useTasks();
   const { selectedListId, lists, tasks } = state;
   const [completedTasks, setCompletedTasks] = useState([]);
@@ -138,13 +138,11 @@ const ToDoList = ({ navigation }) => {
               )}
             />
           </View>
-          <Button title="add task" onPress={() => navigation.navigate("ToDoTask")}></Button>
-
         </View>
         <View style={styles.addTaskButton}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("AddTask")}
+            onPress={() => navigation.navigate("TaskOps")}
           >
             <Icon source="plus" color='#fff' size={28}style={styles.addIcon} />
           </TouchableOpacity>
@@ -204,4 +202,4 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 });
-export default ToDoList;
+export default TaskList;

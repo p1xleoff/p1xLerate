@@ -3,8 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import Home from '../screens/home';
-import ToDoList from '../screens/ToDoList';
-import ToDoTask from '../screens/ToDoTask';
+import TaskList from '../screens/TaskList';
+import TaskOps from '../screens/TaskOps';
 import TaskDetails from '../screens/TaskDetails';
 import ListManager from '../screens/ListManager';
 import AddTask from '../screens/AddTask';
@@ -16,9 +16,9 @@ export const Navigator = () => {
   return (
     <PaperProvider>
     <Stack.Navigator>
-      <Stack.Screen name="ToDoList" component={ToDoList} options={{ title: 'Tasks' }}/>
+      <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }}/>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="ToDoTask" component={ToDoTask} />
+      <Stack.Screen name="TaskOps" component={TaskOps} />
       <Stack.Screen name="AddTask" component={AddTask} />
       <Stack.Screen name="EditTask" component={EditTask} />
       <Stack.Screen name="TaskDetails" component={TaskDetails} options={{ title: 'Task Details' }} />

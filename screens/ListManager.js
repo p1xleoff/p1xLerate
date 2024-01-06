@@ -23,7 +23,7 @@ const ListManager = ({ navigation }) => {
 
   const switchList = (listId, listName) => {
     dispatch({ type: 'SELECT_LIST', payload: listId });
-    navigation.navigate('ToDoList');
+    navigation.navigate('TaskList');
   };
 
   const handleAddList = () => {
