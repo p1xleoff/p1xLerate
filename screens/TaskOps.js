@@ -126,14 +126,14 @@ const TaskOps = ({ route, navigation }) => {
     if (date) {
       setDueDate(date);
 
-      const formattedDate = date.toLocaleDateString();
-      const formattedTime = date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
+
+      const formattedDate = date.toLocaleDateString([], {
+        day: "numeric",
+        month: "short",
+        weekday: "short",
       });
 
       setFormattedDueDate(formattedDate);
-      setFormattedDueTime(formattedTime);
     }
   };
 
@@ -144,11 +144,12 @@ const TaskOps = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
+        <Text style={styles.title}>New Task</Text>
         {/* Input fields for task details */}
         <View style={styles.detailsContainer}>
           <TextInput
             style={[styles.input, { marginBottom: 20 }]}
-            placeholder="New task"
+            placeholder="What would you like to do?"
             value={title}
             selectionColor={"black"}
             activeUnderlineColor="#fff"
@@ -157,7 +158,7 @@ const TaskOps = ({ route, navigation }) => {
 
           <TextInput
             style={styles.input}
-            placeholder="Details"
+            placeholder="Description"
             value={description}
             selectionColor={"black"}
             onChangeText={(text) => setDescription(text)}
@@ -167,12 +168,12 @@ const TaskOps = ({ route, navigation }) => {
         <Text style={styles.title}>Date and Time</Text>
 
         {/* Date Picker Button */}
-        <View style={[styles.detailsContainer, {flexDirection: 'row'}]}>
+        <View style={[styles.detailsContainer, { flexDirection: 'row' }]}>
           <View style={styles.dateTimeContainer}>
-            <TouchableOpacity onPress={showDatePicker}>
-              <Icon source="calendar-outline" color="#1a1a1a" size={30} />
+            <TouchableOpacity onPress={showDatePicker} style={styles.icon}>
+              <Icon source="calendar-outline" color="#fff" size={35} />
             </TouchableOpacity>
-            <Text style={styles.selectedDueDate}>{formattedDueDate}</Text>
+            <Text style={styles.selectedDateTime}>{formattedDueDate}</Text>
 
             {/* Date Picker */}
             <DateTimePickerModal
@@ -183,9 +184,8 @@ const TaskOps = ({ route, navigation }) => {
             />
           </View>
           <View style={styles.dateTimeContainer}>
-            <TouchableOpacity style={styles.icon} 
-              onPress={showTimePicker}>
-              <Icon source="clock-digital" color="#1a1a1a" size={40} />
+            <TouchableOpacity style={styles.icon} onPress={showTimePicker}>
+              <Icon source="clock-time-eight-outline" color="#fff" size={35} />
             </TouchableOpacity>
 
             <DateTimePickerModal
@@ -194,14 +194,13 @@ const TaskOps = ({ route, navigation }) => {
               onConfirm={handleTimeConfirm}
               onCancel={hideTimePicker}
             />
-            <Text style={styles.selectedDueTime}>{formattedDueTime}</Text>
+            <Text style={styles.selectedDateTime}>{formattedDueTime}</Text>
           </View>
         </View>
-        <Button
-          title={taskId ? "Update Task" : "Add Task"}
-          onPress={handleAddTask}
-        />
       </View>
+      <TouchableOpacity style={styles.button} onPress={handleAddTask}>
+        <Text style={styles.buttonText}>{taskId ? "UPDATE TASK" : "ADD TASK"}</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -209,11 +208,11 @@ const TaskOps = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: "#fff",
   },
   innerContainer: {
     backgroundColor: "#fff",
+    padding: 15
   },
   title: {
     fontWeight: "bold",
@@ -222,20 +221,15 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    fontWeight: "bold",
+    fontWeight: "400",
     paddingLeft: 5,
     borderRadius: 5,
     backgroundColor: "#fff",
   },
-  selectedDueDate: {
+  selectedDateTime: {
     fontSize: 16,
-    color: "red",
-    marginBottom: 5,
-  },
-  selectedDueTime: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 15,
+    fontWeight: "bold",
+    paddingTop: 10,
   },
   detailsContainer: {
     paddingVertical: 20,
@@ -244,14 +238,35 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     backgroundColor: "#fff",
     elevation: 5,
+
   },
   dateTimeContainer: {
-    flexDirection: "row",
     alignItems: 'center',
-    width: '49%'
+    width: '50%',
   },
   icon: {
-    borderWidth: 1
+    borderWidth: 1,
+    padding: 7,
+    borderRadius: 30,
+    backgroundColor: "#000",
+    elevation: 5,
+  },
+  button: {
+    position: "absolute",
+    bottom: 15,
+    padding: 18,
+    borderRadius: 5,
+    elevation: 10,
+    alignItems: "center",
+    backgroundColor: "#000",
+    width: '90%',
+    alignSelf: "center"
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: "bold",
+    letterSpacing: 1.5
   }
 });
 

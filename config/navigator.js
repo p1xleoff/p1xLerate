@@ -18,7 +18,7 @@ export const Navigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }}/>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="TaskOps" component={TaskOps} />
+      <Stack.Screen name="TaskOps" component={TaskOps} options={{ title: 'Add a task' }}/>
       <Stack.Screen name="AddTask" component={AddTask} />
       <Stack.Screen name="EditTask" component={EditTask} />
       <Stack.Screen name="TaskDetails" component={TaskDetails} options={{ title: 'Task Details' }} />

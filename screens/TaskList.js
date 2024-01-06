@@ -74,6 +74,24 @@ const TaskList = ({ navigation }) => {
     );
   }, [selectedListId, lists]);
 
+  const handleTaskCompletion = async (taskId) => {
+    // Find the task in the state
+    const updatedTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, completed: 1 } : task
+    );
+
+    // Dispatch action to update the state
+    dispatch({ type: "ADD_TASKS", payload: updatedTasks });
+
+    // Save the updated tasks to AsyncStorage
+    await saveTasksToStorage(updatedTasks);
+
+    // Separate tasks into incomplete and completed
+    const incompleteTasks = updatedTasks.filter((task) => task.completed === 0);
+    const completedTasks = updatedTasks.filter((task) => task.completed === 1);
+
+    setCompletedTasks(completedTasks);
+  };
   return (
     <Provider>
       <View style={styles.container}>
@@ -94,7 +112,7 @@ const TaskList = ({ navigation }) => {
               keyExtractor={(item, index) => (item?.id || index).toString()}
               renderItem={({ item }) => (
                 <View style={styles.tasks}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => handleTaskCompletion(item.id)}>
                 <Icon source="circle-outline" color='black' size={24} />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -196,10 +214,12 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: "black",
     borderRadius: 100,
+    elevation: 10
   },
   addIcon: {
     fontSize: 30,
     color: "#fff",
   },
+
 });
 export default TaskList;

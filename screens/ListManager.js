@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, TextInput, Button, Alert, Modal, StyleSheet, Pressable } from 'react-native';
 import { Divider, Icon } from "react-native-paper";
 import { useTasks } from '../config/tasksContext';
+import { AsyncStorage } from 'react-native';
 import { saveListsToStorage, fetchListsFromStorage } from '../config/dbHelper';
 
 const ListManager = ({ navigation }) => {
@@ -32,18 +33,20 @@ const ListManager = ({ navigation }) => {
     setModalVisible(true);
   };
 
- const handleModalSubmit = async () => {
+  const handleModalSubmit = async () => {
     if (newListTitle.trim() !== '') {
       if (editListId !== null) {
         // Editing an existing list
+        const updatedLists = lists.map((list) =>
+          list.id === editListId ? { ...list, name: newListTitle.trim() } : list
+        );
         dispatch({ type: 'EDIT_LIST', payload: { id: editListId, name: newListTitle.trim() } });
+        await saveListsToStorage(updatedLists);
       } else {
         // Adding a new list
         const newList = { id: Date.now().toString(), name: newListTitle.trim() };
         dispatch({ type: 'ADD_LIST', payload: newList });
-
-        // Save the updated lists to AsyncStorage
-        await saveListsToStorage([...lists, newList]); // Updated line
+        await saveListsToStorage([...lists, newList]);
       }
 
       // Save the updated lists to AsyncStorage (removed from here)
@@ -55,7 +58,8 @@ const ListManager = ({ navigation }) => {
       setModalVisible(false); // Close the modal
     }
   };
-  
+
+
   const handleDeleteList = async (listId, listName) => {
     Alert.alert(
       'Confirm Deletion',
@@ -69,88 +73,85 @@ const ListManager = ({ navigation }) => {
           text: 'Delete',
           onPress: async () => {
             dispatch({ type: 'DELETE_LIST', payload: listId });
-  
+
             // Save the updated lists to AsyncStorage
             const updatedLists = lists.filter(list => list.id !== listId);
             await saveListsToStorage(updatedLists);
-  
+
             setEditListId(null); // Reset edit list ID
           },
         },
       ]
     );
-  };  
-  
-    const handleEditList = (listId, listName) => {
-      setEditListId(listId);
-      setNewListTitle(listName);
-      setModalVisible(true);
-    };
+  };
+
+  const handleEditList = (listId, listName) => {
+    setEditListId(listId);
+    setNewListTitle(listName);
+    setModalVisible(true);
+  };
 
 
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-      <FlatList
-        data={lists}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.listItem} >      
+        <FlatList
+          data={lists}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.listItem} >
               <TouchableOpacity onPress={() => switchList(item.id, item.name)}>
-               <Text style={styles.listName}>{item.name}</Text>
+                <Text style={styles.listName}>{item.name}</Text>
               </TouchableOpacity>
               <View style={styles.listTools}>
-              <TouchableOpacity onPress={() => handleEditList(item.id, item.name)}>         
-                <Icon source="pencil" color='#383838' size={28} />
+                <TouchableOpacity onPress={() => handleEditList(item.id, item.name)}>
+                  <Icon source="pencil" color='#fff' size={28} />
                 </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDeleteList(item.id, item.name)} style={{paddingLeft: 10}}>
-              <Icon source="delete" color='#383838' size={28}/>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDeleteList(item.id, item.name)} style={{ paddingLeft: 10 }}>
+                  <Icon source="delete" color='#fff' size={28} />
+                </TouchableOpacity>
               </View>
-          </View>
-        )}
-      />
+            </View>
+          )}
+        />
 
-      {/* Modal for adding/editing a list */}
-      <Modal
-        visible={isModalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalTitle}>
-            {/* <Pressable onPress={() => setModalVisible(false)}>
+        {/* Modal for adding/editing a list */}
+        <Modal
+          visible={isModalVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalTitle}>
+              {/* <Pressable onPress={() => setModalVisible(false)}>
           <Icon source="close" color='#fff' size={28} />
           </Pressable> */}
               <Text style={styles.modalText}>What would you like to call your list?</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter List Title"
+              value={newListTitle}
+              onChangeText={(text) => setNewListTitle(text)}
+            />
+            <View style={styles.modalButtonContainer}>
+              <Pressable style={styles.modalButton} onPress={handleModalSubmit} >
+                <Text style={styles.modalButtonText}>Done</Text>
+              </Pressable>
+              <Pressable style={styles.modalButton} onPress={() => setModalVisible(false)} >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </Pressable>
+            </View>
           </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter List Title"
-            value={newListTitle}
-            onChangeText={(text) => setNewListTitle(text)}
-          />
-          <View style={styles.modalButtonContainer}>
-          <Pressable style={styles.modalButton} onPress={handleModalSubmit} >
-            <Text style={styles.modalButtonText}>Done</Text>
-            </Pressable>
-          <Pressable style={styles.modalButton} onPress={() => setModalVisible(false)} >
-            <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+        </Modal>
 
       </View>
       <View style={styles.addTaskButton}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleAddList}
-          >
-            <Text style={styles.addIcon}> + </Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.button} onPress={handleAddList}>
+          <Icon source="plus" color='#fff' size={28} style={styles.addIcon} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -162,22 +163,23 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     marginHorizontal: "2%",
-  },  
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
   },
-  listItem:  {
+  listItem: {
     flexDirection: 'row',
     justifyContent: "space-between",
-    margin: 5,
+    margin: 9,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 4,
+    backgroundColor: '#000',
+    borderRadius: 5,
     elevation: 5,
-    paddingHorizontal: 15
+    paddingHorizontal: 15,
+    paddingVertical: 3
   },
-  listTools:  {
+  listTools: {
     flexDirection: 'row',
     justifyContent: "space-between",
     marginVertical: 10,
@@ -185,7 +187,9 @@ const styles = StyleSheet.create({
   listName: {
     fontSize: 18,
     fontWeight: '500',
-  },  
+    color: '#fff',
+    width: 220
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: 'black',
@@ -235,13 +239,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#000',
     width: '45%',
-    marginTop: 10, 
+    marginTop: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 4,
     alignItems: 'center'
   },
-  modalButtonText:  {
+  modalButtonText: {
     fontSize: 18,
     fontWeight: '600'
   },
