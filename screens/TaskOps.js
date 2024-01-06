@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Button, TouchableOpacity, Text, StyleSheet, TextInput } from "react-native";
+import {
+  View,
+  Button,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TextInput,
+} from "react-native";
 import { Divider, Icon } from "react-native-paper";
 import { saveTasksToStorage, fetchTasksFromStorage } from "../config/dbHelper";
 import { useTasks } from "../config/tasksContext";
@@ -38,7 +45,10 @@ const TaskOps = ({ route, navigation }) => {
 
       setDueDate(selectedTime);
 
-      const formattedTime = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const formattedTime = selectedTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
       setFormattedDueTime(formattedTime);
     }
   };
@@ -57,7 +67,9 @@ const TaskOps = ({ route, navigation }) => {
           setTitle(taskDetails.title || "");
           setDescription(taskDetails.description || "");
 
-          setDueDate(taskDetails.dueDate ? new Date(taskDetails.dueDate) : new Date());
+          setDueDate(
+            taskDetails.dueDate ? new Date(taskDetails.dueDate) : new Date()
+          );
         }
       };
 
@@ -79,8 +91,11 @@ const TaskOps = ({ route, navigation }) => {
       id: taskId || Date.now().toString(),
       title,
       description,
-      dueDate: dueDate.toISOString().split('T')[0],
-      dueTime: dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      dueDate: dueDate.toISOString().split("T")[0],
+      dueTime: dueDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       completed: 0,
       listId: selectedListId,
     };
@@ -112,16 +127,18 @@ const TaskOps = ({ route, navigation }) => {
       setDueDate(date);
 
       const formattedDate = date.toLocaleDateString();
-      const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const formattedTime = date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
       setFormattedDueDate(formattedDate);
       setFormattedDueTime(formattedTime);
     }
   };
 
-
   const formatTime = (time) => {
-    return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
@@ -129,53 +146,57 @@ const TaskOps = ({ route, navigation }) => {
       <View style={styles.innerContainer}>
         {/* Input fields for task details */}
         <View style={styles.detailsContainer}>
-        <TextInput
-          style={[styles.input, {marginBottom: 20}]}
-          placeholder="New task"
-          value={title}
-          selectionColor={'black'}
-          activeUnderlineColor="#fff"
-          onChangeText={(text) => setTitle(text)}
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Details"
-          value={description}
-          selectionColor={'black'}
-          onChangeText={(text) => setDescription(text)}
-        />
+          <TextInput
+            style={[styles.input, { marginBottom: 20 }]}
+            placeholder="New task"
+            value={title}
+            selectionColor={"black"}
+            activeUnderlineColor="#fff"
+            onChangeText={(text) => setTitle(text)}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Details"
+            value={description}
+            selectionColor={"black"}
+            onChangeText={(text) => setDescription(text)}
+          />
         </View>
 
+        <Text style={styles.title}>Date and Time</Text>
+
         {/* Date Picker Button */}
-        <View style={styles.detailsContainer}>
-        <Text style={styles.input}>Date and Time</Text>
-        <TouchableOpacity onPress={showDatePicker}>
+        <View style={[styles.detailsContainer, {flexDirection: 'row'}]}>
+          <View style={styles.dateTimeContainer}>
+            <TouchableOpacity onPress={showDatePicker}>
+              <Icon source="calendar-outline" color="#1a1a1a" size={30} />
+            </TouchableOpacity>
+            <Text style={styles.selectedDueDate}>{formattedDueDate}</Text>
 
-          <Icon source="calendar" color='#1a1a1a' size={40} />
-        </TouchableOpacity>
+            {/* Date Picker */}
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="date"
+              onConfirm={handleDateConfirm}
+              onCancel={hideDatePicker}
+            />
+          </View>
+          <View style={styles.dateTimeContainer}>
+            <TouchableOpacity style={styles.icon} 
+              onPress={showTimePicker}>
+              <Icon source="clock-digital" color="#1a1a1a" size={40} />
+            </TouchableOpacity>
 
-        {/* Date Picker */}
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="date"
-          onConfirm={handleDateConfirm}
-          onCancel={hideDatePicker}
-        />
-        <Text style={styles.selectedDueDate}>{formattedDueDate}</Text>
-        <Text style={styles.selectedDueTime}>{formattedDueTime}</Text>
-
-        <TouchableOpacity onPress={showTimePicker}>
-          <Text style={styles.dateButton}>Select Due Time</Text>
-        </TouchableOpacity>
-
-        <DateTimePickerModal
-          isVisible={isTimePickerVisible}
-          mode="time"
-          onConfirm={handleTimeConfirm}
-          onCancel={hideTimePicker}
-        />
-      </View>
+            <DateTimePickerModal
+              isVisible={isTimePickerVisible}
+              mode="time"
+              onConfirm={handleTimeConfirm}
+              onCancel={hideTimePicker}
+            />
+            <Text style={styles.selectedDueTime}>{formattedDueTime}</Text>
+          </View>
+        </View>
         <Button
           title={taskId ? "Update Task" : "Add Task"}
           onPress={handleAddTask}
@@ -194,6 +215,11 @@ const styles = StyleSheet.create({
   innerContainer: {
     backgroundColor: "#fff",
   },
+  title: {
+    fontWeight: "bold",
+    paddingLeft: 5,
+    marginBottom: 5,
+  },
   input: {
     height: 50,
     fontWeight: "bold",
@@ -208,7 +234,7 @@ const styles = StyleSheet.create({
   },
   selectedDueTime: {
     fontSize: 16,
-    color: "#333", 
+    color: "#333",
     marginBottom: 15,
   },
   detailsContainer: {
@@ -218,6 +244,14 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     backgroundColor: "#fff",
     elevation: 5,
+  },
+  dateTimeContainer: {
+    flexDirection: "row",
+    alignItems: 'center',
+    width: '49%'
+  },
+  icon: {
+    borderWidth: 1
   }
 });
 
