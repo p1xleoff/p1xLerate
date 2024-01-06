@@ -3,6 +3,7 @@ import { View, Button, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Divider, Icon, TextInput } from "react-native-paper";
 import { saveTasksToStorage, fetchTasksFromStorage } from "../config/dbHelper";
 import { useTasks } from "../config/tasksContext";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const ToDoTask = ({ route, navigation }) => {
   const { state, dispatch } = useTasks();
@@ -13,6 +14,35 @@ const ToDoTask = ({ route, navigation }) => {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("");
   const [tasks, setTasks] = useState([]);
+
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [dueDate, setDueDate] = useState(new Date());
+  const [formattedDueDate, setFormattedDueDate] = useState("");
+const [formattedDueTime, setFormattedDueTime] = useState("");
+  
+const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
+
+const showTimePicker = () => {
+  setTimePickerVisibility(true);
+};
+
+const hideTimePicker = () => {
+  setTimePickerVisibility(false);
+};
+
+const handleTimeConfirm = (time) => {
+  hideTimePicker();
+  if (time) {
+    const selectedTime = new Date(dueDate);
+    selectedTime.setHours(time.getHours());
+    selectedTime.setMinutes(time.getMinutes());
+
+    setDueDate(selectedTime);
+
+    const formattedTime = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setFormattedDueTime(formattedTime);
+  }
+};
 
   useEffect(() => {
     fetchTasks();
@@ -28,6 +58,7 @@ const ToDoTask = ({ route, navigation }) => {
           setTitle(taskDetails.title || "");
           setDescription(taskDetails.description || "");
           setPriority(taskDetails.priority || "");
+          setDueDate(taskDetails.dueDate ? new Date(taskDetails.dueDate) : new Date());
         }
       };
 
@@ -50,6 +81,8 @@ const ToDoTask = ({ route, navigation }) => {
       title,
       description,
       priority,
+      dueDate: dueDate.toISOString().split('T')[0],
+      dueTime: dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       completed: 0,
       listId: selectedListId,
     };
@@ -67,6 +100,32 @@ const ToDoTask = ({ route, navigation }) => {
     }
   };
 
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    hideDatePicker();
+    if (date) {
+      setDueDate(date);
+  
+      const formattedDate = date.toLocaleDateString();
+      const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+      setFormattedDueDate(formattedDate);
+      setFormattedDueTime(formattedTime);
+    }
+  };
+  
+  
+  const formatTime = (time) => {
+    return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+  
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -94,6 +153,32 @@ const ToDoTask = ({ route, navigation }) => {
           right={<TextInput.Icon icon="alert-outline" />}
           onChangeText={(text) => setPriority(text)}
         />
+                {/* Date Picker Button */}
+                <TouchableOpacity onPress={showDatePicker}>
+          <Text style={styles.dateButton}>Select Due Date</Text>
+        </TouchableOpacity>
+
+        {/* Date Picker */}
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleDateConfirm}
+          onCancel={hideDatePicker}
+        />
+<Text style={styles.selectedDueDate}>{formattedDueDate}</Text>
+<Text style={styles.selectedDueTime}>{formattedDueTime}</Text>
+
+<TouchableOpacity onPress={showTimePicker}>
+  <Text style={styles.dateButton}>Select Due Time</Text>
+</TouchableOpacity>
+
+<DateTimePickerModal
+  isVisible={isTimePickerVisible}
+  mode="time"
+  onConfirm={handleTimeConfirm}
+  onCancel={hideTimePicker}
+/>
+
         <Button
           title={taskId ? "Update Task" : "Add Task"}
           onPress={handleAddTask}
@@ -121,6 +206,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderColor: "#fff",
     elevation: 9,
+  },
+  selectedDueDate: {
+    fontSize: 16,
+    color: "#333", // Adjust the color as needed
+    marginBottom: 5,
+  },
+  selectedDueTime: {
+    fontSize: 16,
+    color: "#333", // Adjust the color as needed
+    marginBottom: 15,
   },
 });
 

@@ -78,9 +78,20 @@ const TaskDetails = ({ route, navigation }) => {
   };
 
   const formatDate = (dateString) => {
-    const options = { day: "numeric", month: "short", year: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return new Date(dateString).toLocaleDateString('en-US', {
+      day: "numeric",
+      month: "long",
+      weekday: "long",
+    });
   };
+  
+  const formatTime = (timeString) => {
+    return new Date(timeString).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -88,45 +99,35 @@ const TaskDetails = ({ route, navigation }) => {
         {taskDetails ? (
           <View>
             <View style={styles.taskDetails}>
-              <Text style={styles.title}>{`${
-                taskDetails.title || "N/A"
-              }`}</Text>
+              <Text style={styles.title}>{`${taskDetails.title || "N/A"
+                }`}</Text>
               <View style={styles.taskInfo}>
                 <Icon source="text" color="black" size={24} />
-                <Text style={styles.taskText}>{`${
-                  taskDetails.description || "N/A"
-                }`}</Text>
+                <Text style={styles.taskText}>{`${taskDetails.description || "N/A"
+                  }`}</Text>
               </View>
               <View style={styles.taskInfo}>
                 <Icon source="calendar" color="black" size={24} />
                 <Text style={styles.taskText}>
-                  {`${taskDetails.date ? formatDate(taskDetails.date) : "N/A"}`}
+                {`${taskDetails.dueDate ? formatDate(taskDetails.dueDate) : "N/A"}`}
                 </Text>
               </View>
               <View style={styles.taskInfo}>
                 <Icon source="clock-outline" color="black" size={24} />
                 <Text style={styles.taskText}>
-                  {`${
-                    taskDetails.time
-                      ? new Date(taskDetails.time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "N/A"
-                  }`}
+                  {`${taskDetails.dueTime || "N/A"}`}
                 </Text>
               </View>
+
               <View style={styles.taskInfo}>
                 <Icon source="alert-outline" color="black" size={24} />
-                <Text style={styles.taskText}>{`Priority: ${
-                  taskDetails.priority || "N/A"
-                }`}</Text>
+                <Text style={styles.taskText}>{`Priority: ${taskDetails.priority || "N/A"
+                  }`}</Text>
               </View>
               <View style={styles.taskInfo}>
                 <Icon source="progress-check" color="black" size={24} />
-                <Text style={styles.taskText}>{`Completed: ${
-                  taskDetails.completed ? "Yes" : "No"
-                }`}</Text>
+                <Text style={styles.taskText}>{`Completed: ${taskDetails.completed ? "Yes" : "No"
+                  }`}</Text>
               </View>
             </View>
           </View>
@@ -183,12 +184,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: '5%',
-  }, 
+  },
   editButton: {
     position: "absolute",
     bottom: 20,
     alignSelf: 'center'
-  },  
+  },
   deleteButton: {
     position: "absolute",
     bottom: 20,
