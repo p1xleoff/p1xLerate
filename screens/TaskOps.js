@@ -235,10 +235,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 15,
     marginBottom: 25,
-    borderRadius: 7,
+    borderRadius: 5,
     backgroundColor: "#fff",
     elevation: 5,
-
   },
   dateTimeContainer: {
     alignItems: 'center',

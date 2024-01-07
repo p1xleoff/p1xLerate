@@ -118,8 +118,9 @@ const ListManager = ({ navigation }) => {
         {/* Modal for adding/editing a list */}
         <Modal
           visible={isModalVisible}
-          animationType="fade"
+          animationType="slide"
           transparent={true}
+          statusBarTranslucent={true}
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>

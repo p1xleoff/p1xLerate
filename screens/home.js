@@ -23,7 +23,7 @@ const Home = () => {
               <Text style={[styles.text, {color: '#fff'}]}>Check out tasks</Text>
               <Icon source="chevron-right" color='#fff' size={28} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Routine")}>
+          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("RoutineList")}>
               <Text style={[styles.text, {color: '#fff'}]}>Check out routines</Text>
               <Icon source="chevron-right" color='#fff' size={28} />
           </TouchableOpacity>

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const KEY_TASKS = 'tasks';
 const KEY_LISTS = 'lists';
 const KEY_ROUTINES = 'routines';
+const KEY_SUBROUTINES = 'subroutines';
 
 //tasks
 const saveTasksToStorage = async (tasks) => {
@@ -61,8 +62,26 @@ const fetchRoutinesFromStorage = async () => {
     console.error('Error fetching routines from AsyncStorage', error);
     return [];
   }
-  console.log(storedRoutines);
 };
+
+const saveSubroutinesToStorage = async (routineId, subroutines) => {
+  try {
+    await AsyncStorage.setItem(`${KEY_SUBROUTINES}_${routineId}`, JSON.stringify(subroutines));
+  } catch (error) {
+    console.error('Error saving subroutines to AsyncStorage', error);
+  }
+};
+
+const fetchSubroutinesFromStorage = async (routineId) => {
+  try {
+    const storedSubroutines = await AsyncStorage.getItem(`${KEY_SUBROUTINES}_${routineId}`);
+    return storedSubroutines ? JSON.parse(storedSubroutines) : [];
+  } catch (error) {
+    console.error('Error fetching subroutines from AsyncStorage', error);
+    return [];
+  }
+};
+
 export {
   saveTasksToStorage,
   fetchTasksFromStorage,
@@ -70,4 +89,6 @@ export {
   fetchListsFromStorage,
   saveRoutinesToStorage, 
   fetchRoutinesFromStorage,
+  saveSubroutinesToStorage,
+  fetchSubroutinesFromStorage,
 };

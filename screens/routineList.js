@@ -5,7 +5,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import { Divider, Icon } from "react-native-paper";
 import { fetchRoutinesFromStorage } from '../config/dbHelper';
 
-const RoutineListScreen = ({ navigation }) => {
+const RoutineList = ({ navigation }) => {
   const [routines, setRoutines] = useState([]);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ const RoutineListScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
         <View style={styles.innerContainer}>
-      <Text>Routine List Screen</Text>
       <View>
       <FlatList
         data={routines}
@@ -31,7 +30,7 @@ const RoutineListScreen = ({ navigation }) => {
           <View>
           <TouchableOpacity
          style={styles.listItem}
-          onPress={() => navigation.navigate('RoutineDetail', { routine: item })}
+          onPress={() => navigation.navigate('RoutineDetails', { routine: item })}
         >
             <Text style={styles.text}>{item.name}</Text>
         </TouchableOpacity>
@@ -88,4 +87,4 @@ const styles = StyleSheet.create({
     elevation: 10
   },
 });
-export default RoutineListScreen;
+export default RoutineList;

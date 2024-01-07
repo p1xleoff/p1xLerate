@@ -7,8 +7,9 @@ import TaskList from '../screens/TaskList';
 import TaskOps from '../screens/TaskOps';
 import TaskDetails from '../screens/TaskDetails';
 import ListManager from '../screens/ListManager';
-import Routine from '../screens/routineList';
+import RoutineList from '../screens/routineList';
 import RoutineOps from '../screens/routineOps';
+import RoutineDetails from '../screens/routineDetails';
 
 const Stack = createStackNavigator();
 
@@ -17,7 +18,8 @@ export const Navigator = () => {
     <PaperProvider>
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
-      <Stack.Screen name="Routine" component={Routine} />
+      <Stack.Screen name="RoutineList" component={RoutineList} />
+      <Stack.Screen name="RoutineDetails" component={RoutineDetails} />
       <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }}/>
       <Stack.Screen name="TaskOps" component={TaskOps} options={{ title: 'Add a task' }}/>
       <Stack.Screen name="RoutineOps" component={RoutineOps} />
