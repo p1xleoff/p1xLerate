@@ -158,10 +158,7 @@ const TaskList = ({ navigation }) => {
           </View>
         </View>
         <View style={styles.addTaskButton}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("TaskOps")}
-          >
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("TaskOps")} >
             <Icon source="plus" color='#fff' size={28}style={styles.addIcon} />
           </TouchableOpacity>
         </View>

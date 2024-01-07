@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderColor: '#fff',
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 7,
     marginVertical: 10,
   },
   links:  {
@@ -63,10 +63,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     elevation: 10,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 7,
     justifyContent: 'space-between',
     marginVertical: 10,
   },
-
 });
 export default Home;

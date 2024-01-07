@@ -1,17 +1,49 @@
-// Home.js
-import React from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { Divider, Icon } from "react-native-paper";
-import { useNavigation } from '@react-navigation/native';
+// screens/RoutineListScreen.js
 
-const Routine = () => {
-  const navigation = useNavigation();
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { Divider, Icon } from "react-native-paper";
+import { fetchRoutinesFromStorage } from '../config/dbHelper';
+
+const RoutineListScreen = ({ navigation }) => {
+  const [routines, setRoutines] = useState([]);
+
+  useEffect(() => {
+    loadRoutines();
+  }, []);
+
+  const loadRoutines = async () => {
+    const storedRoutines = await fetchRoutinesFromStorage();
+    setRoutines(storedRoutines);
+  };
+
+
 
   return (
     <View style={styles.container}>
-      <View style={styles.innerContainer}>
-      <Text style={styles.text}>Lets add some routines</Text>
+        <View style={styles.innerContainer}>
+      <Text>Routine List Screen</Text>
+      <View>
+      <FlatList
+        data={routines}
+        keyExtractor={(item) => item.id}
+        renderItem = {({ item }) => (
+          <View>
+          <TouchableOpacity
+         style={styles.listItem}
+          onPress={() => navigation.navigate('RoutineDetail', { routine: item })}
+        >
+            <Text style={styles.text}>{item.name}</Text>
+        </TouchableOpacity>
+        </View>)}
+      />
       </View>
+      </View>
+      <View style={styles.addTaskButton}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("RoutineOps")} >
+            <Icon source="plus" color='#fff' size={28}style={styles.addIcon} />
+          </TouchableOpacity>
+        </View>
     </View>
   );
 };
@@ -30,25 +62,30 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    letterSpacing: 1.2,
+    color: '#fff'
   },
-  card: {
-    backgroundColor: '#fff',
-    elevation: 10,
-    borderColor: '#fff',
-    padding: 10,
-    borderRadius: 10,
-    marginVertical: 10,
-  },
-  links:  {
+  listItem:  {
     flexDirection: 'row',
     backgroundColor: '#000',
     elevation: 10,
-    padding: 15,
-    borderRadius: 10,
+    padding: 20,
+    borderRadius: 7,
     justifyContent: 'space-between',
     marginVertical: 10,
   },
-
+  addTaskButton: {
+    position: "absolute",
+    bottom: 15,
+    right: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 60,
+    height: 60,
+    backgroundColor: "black",
+    borderRadius: 100,
+    elevation: 10
+  },
 });
-export default Routine;
+export default RoutineListScreen;

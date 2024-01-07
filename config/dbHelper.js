@@ -2,7 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY_TASKS = 'tasks';
 const KEY_LISTS = 'lists';
+const KEY_ROUTINES = 'routines';
 
+//tasks
 const saveTasksToStorage = async (tasks) => {
   try {
     await AsyncStorage.setItem(KEY_TASKS, JSON.stringify(tasks));
@@ -21,6 +23,7 @@ const fetchTasksFromStorage = async () => {
   }
 };
 
+//lists
 const saveListsToStorage = async (lists) => {
   try {
     await AsyncStorage.setItem(KEY_LISTS, JSON.stringify(lists));
@@ -40,9 +43,31 @@ const fetchListsFromStorage = async () => {
   }
 };
 
+//routines
+const saveRoutinesToStorage = async (routines) => {
+  try {
+    await AsyncStorage.setItem(KEY_ROUTINES, JSON.stringify(routines));
+  } catch (error) {
+    console.error('Error saving routines to AsyncStorage', error);
+  }
+  console.log('routine saved');
+};
+
+const fetchRoutinesFromStorage = async () => {
+  try {
+    const storedRoutines = await AsyncStorage.getItem(KEY_ROUTINES);
+    return storedRoutines ? JSON.parse(storedRoutines) : [];
+  } catch (error) {
+    console.error('Error fetching routines from AsyncStorage', error);
+    return [];
+  }
+  console.log(storedRoutines);
+};
 export {
   saveTasksToStorage,
   fetchTasksFromStorage,
   saveListsToStorage,
   fetchListsFromStorage,
+  saveRoutinesToStorage, 
+  fetchRoutinesFromStorage,
 };
