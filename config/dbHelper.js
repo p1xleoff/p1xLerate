@@ -51,7 +51,7 @@ const saveRoutinesToStorage = async (routines) => {
   } catch (error) {
     console.error('Error saving routines to AsyncStorage', error);
   }
-  console.log('routine saved');
+  //console.log('routine saved');
 };
 
 const fetchRoutinesFromStorage = async () => {

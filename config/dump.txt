@@ -1,0 +1,34 @@
+      import { FloatingAction } from "react-native-floating-action";
+  const [isActionButtonVisible, setActionButtonVisible] = useState(true);
+
+      <FloatingAction
+      style={styles.floater}
+        actions={[
+          {
+            text: 'Edit Subroutine',
+            icon: <Icon source="pencil" color="#fff" size={24} />,
+            name: 'edit_subroutine',
+            position: 2,
+            buttonSize: 45
+          },
+          {
+            text: 'Delete Subroutine',
+            icon: <Icon source="delete" color="#fff" size={24} />,
+            name: 'del_subroutine',
+            position: 1,
+            buttonSize: 45
+          },
+          // Add more actions if needed
+        ]}
+        onPressItem={(name) => {
+          if (name === 'edit_subroutine') {
+            handleEditRoutine();
+          }
+        }}
+        color="#000"
+        buttonSize={60}
+        textElevation={0}
+        floatingIcon={<Icon source="cheese" color="white" size={30} />}
+        overlayColor='rgba(9, 9, 9, 0.85)'
+        distanceToEdge={{ vertical: 10, horizontal: 15 }}
+      />

@@ -1,30 +1,176 @@
-// screens/RoutineDetailScreen.js
-
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Icon, FAB, Portal } from 'react-native-paper';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 const RoutineDetails = ({ route }) => {
   const { routine } = route.params;
+  const navigation = useNavigation();
+  const [isFabVisible, setFabVisible] = useState(true);
+  const [isFabOpen, setFabOpen] = useState(false);
+  const isFocused = useIsFocused();
+
+  const handleEditRoutine = () => {
+    navigation.navigate('RoutineOps', { routineId: routine.id });
+  };
+
+  useEffect(() => {
+    setFabVisible(true); // Reset FAB visibility when the component mounts
+  }, [isFocused]);
 
   return (
-    <View>
-      <Text>Routine Detail Screen</Text>
-      <Text>Name: {routine.name}</Text>
-
-      <Text>Tasks:</Text>
-      {routine.tasks.map((task, index) => (
-        <Text key={index}>{task}</Text>
-      ))}
-
-      <Text>Subroutines:</Text>
-      {routine.subroutines.map((subroutine, index) => (
-        <View key={index}>
-          <Text>Name: {subroutine.name}</Text>
-          <Text>Duration: {subroutine.duration} mins</Text>
+    <View style={styles.container}>
+      <ScrollView>
+        <View style={styles.innerContainer}>
+          <View style={[styles.detailsContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            <Text style={styles.header}>{routine.name}</Text>
+          </View>
+          <View style={styles.detailsContainer}>
+            <View style={styles.routineHeaders}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon source="alarm" color="#000" size={24} />
+                <Text style={styles.descriptionText}>Alarm</Text>
+              </View>
+              <Text style={styles.descriptionText}>8:40 AM</Text>
+            </View>
+            <View style={styles.routineHeaders}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon source="timer-outline" color="#000" size={24} />
+                <Text style={styles.descriptionText}>Duration</Text>
+              </View>
+              <Text style={styles.descriptionText}>13 Minutes</Text>
+            </View>
+          </View>
+          <View>
+            <Text style={styles.subroutineHeader}>Subroutines</Text>
+            <View style={{ marginBottom: 75 }}>
+              {routine.subroutines.map((subroutine, index) => (
+                <View key={index} style={styles.subroutineContainer}>
+                  <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+                  <View style={{ paddingLeft: 20 }}>
+                    <Text style={styles.subroutineName}>{subroutine.name}</Text>
+                    <Text style={styles.subroutineDuration}>{subroutine.duration}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
-      ))}
+      </ScrollView>
+      <Portal>
+        {isFocused && isFabVisible && (
+          <FAB.Group
+            open={isFabOpen}
+            visible
+            icon={isFabOpen ? 'cheese-off' : 'cheese'}
+            backdropColor={'rgba(222, 222, 222, 0.9)'}
+            color="#fff"
+            fabStyle={styles.fab}
+            small={false}
+            style={styles.fabItem}
+            actions={[
+              {
+                onPress: () => console.log('Pressed delete'),
+                icon: 'delete',
+                label: 'Delete Routine',
+                labelStyle: { color: '#000', fontWeight: 'bold' },
+                color: '#000',
+                style: { backgroundColor: '#fff' },
+                size: 1,
+              },
+              {
+                onPress: () => handleEditRoutine(),
+                icon: 'pencil',
+                label: 'Edit Routine',
+                labelStyle: { color: '#000', fontWeight: 'bold' },
+                color: '#000',
+                style: { backgroundColor: '#fff' },
+                size: 1,
+              },
+            ]}
+            onStateChange={({ open }) => setFabOpen(open)}
+          />
+        )}
+      </Portal>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 10,
+  },
+  innerContainer: {
+    marginHorizontal: '2%',
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  routineHeaders: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: 5,
+    justifyContent: 'space-between',
+  },
+  detailsContainer: {
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    elevation: 5,
+  },
+  descriptionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    paddingLeft: 12,
+    paddingVertical: 3,
+  },
+  subroutineHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  subroutineContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    backgroundColor: '#1a1a1a',
+    elevation: 5,
+  },
+  subroutineName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  subroutineDuration: {
+    fontSize: 14,
+    color: '#fff',
+  },
+  icon: {
+    borderWidth: 1,
+    borderRadius: 50,
+    padding: 5,
+    backgroundColor: '#000',
+    elevation: 5,
+  },
+  fab: {
+    backgroundColor: '#000',
+    borderRadius: 40,
+    color: '#fff',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fabItem: {
+    color: 'red',
+  },
+});
 
 export default RoutineDetails;

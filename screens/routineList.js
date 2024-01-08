@@ -1,8 +1,9 @@
 // screens/RoutineListScreen.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback} from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { Divider, Icon } from "react-native-paper";
+import { useFocusEffect } from '@react-navigation/native';
 import { fetchRoutinesFromStorage } from '../config/dbHelper';
 
 const RoutineList = ({ navigation }) => {
@@ -17,7 +18,10 @@ const RoutineList = ({ navigation }) => {
     setRoutines(storedRoutines);
   };
 
-
+  //load new routines immediately
+  useFocusEffect(
+    useCallback(() => { loadRoutines(); }, []));
+  useEffect(() => { loadRoutines();}, []);
 
   return (
     <View style={styles.container}>

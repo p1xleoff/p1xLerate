@@ -11,13 +11,13 @@ import {
 
 const RoutineOps = ({ route, navigation }) => {
   const [routineName, setRoutineName] = useState('');
-  const [routineDescription, setRoutineDescription] = useState([]);
+  // const [routineDescription, setRoutineDescription] = useState([]);
   const [routineId, setRoutineId] = useState(null);
 
   const [subroutineName, setSubroutineName] = useState('');
   const [subroutineDuration, setSubroutineDuration] = useState('');
   const [subroutines, setSubroutines] = useState([]);
-  const [currentDescription, setCurrentDescription] = useState('');
+  // const [currentDescription, setCurrentDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [subroutineTimerVisible, setSubroutineTimerVisible] = useState(false);
   const openModal = () => setModalVisible(true);
@@ -38,7 +38,7 @@ const RoutineOps = ({ route, navigation }) => {
     if (editRoutine) {
       setRoutineId(editRoutine.id);
       setRoutineName(editRoutine.name);
-      setRoutineDescription(editRoutine.description);
+      // setRoutineDescription(editRoutine.description);
       setSubroutines(editRoutine.subroutines || []);
     }
   };
@@ -47,19 +47,19 @@ const RoutineOps = ({ route, navigation }) => {
     const newRoutine = {
       id: routineId || new Date().getTime().toString(),
       name: routineName.trim(),
-      description: routineDescription,
+      // description: [...routineDescription, currentDescription.trim()],
       subroutines: subroutines,
     };
-
+  
     const routines = await fetchRoutinesFromStorage();
     const updatedRoutines = routineId
       ? routines.map((routine) => (routine.id === routineId ? newRoutine : routine))
       : [...routines, newRoutine];
-
+  
     await saveRoutinesToStorage(updatedRoutines);
-    navigation.goBack();
+    navigation.navigate('RoutineList', { routine: newRoutine });
   };
-
+  
   const addSubroutine = () => {
     if (subroutineName && subroutineDuration !== null) {
       const newSubroutine = {
@@ -68,10 +68,11 @@ const RoutineOps = ({ route, navigation }) => {
       };
       setSubroutines([...subroutines, newSubroutine]);
       setSubroutineName('');
-      setSubroutineDuration(null); // Change to null
+      setSubroutineDuration(null);
     }
     closeModal();
   };
+
   const handleSetSubDuration = (pickedDuration) => {
     const hours = pickedDuration.hours > 0 ? `${pickedDuration.hours} hours` : '';
     const minutes = pickedDuration.minutes > 0 ? `${pickedDuration.minutes} minutes` : '';
@@ -83,10 +84,10 @@ const RoutineOps = ({ route, navigation }) => {
   };
   return (
     <View style={styles.container}>
-      <View style={styles.innerContainer}>
         <ScrollView>
+      <View style={styles.innerContainer}>
 
-          <View style={{ margin: 10, }}>
+          <View style={{ margin: 10, marginBottom: 80}}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon source="dots-circle" color="#000" size={24} />
               <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 }]}>New Routine</Text>
@@ -98,25 +99,27 @@ const RoutineOps = ({ route, navigation }) => {
                 value={routineName}
                 onChangeText={(text) => setRoutineName(text)}
               />
-              {/* Display routine description */}
+              
+              {/* Display routine description
               {routineDescription.map((description, index) => (
                 <View key={index}>
                   <Text>{description}</Text>
                 </View>
-              ))}
+              ))} */}
 
               {/* Add input fields for routine description */}
-              <TextInput
+              {/* <TextInput
                 style={styles.input}
                 placeholder="Enter description"
                 value={currentDescription}
                 onChangeText={(text) => setCurrentDescription(text)}
-              />
+              /> */}
+              
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon source="gamepad-circle-down" color="#000" size={24} />
-                <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 }]}>Sub Routines</Text>
+                <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 }]}>Subroutines</Text>
               </View>
               {/* Button to add subroutine */}
               <TouchableOpacity onPress={openModal}>
@@ -126,14 +129,14 @@ const RoutineOps = ({ route, navigation }) => {
 
             {/* Display subroutines */}
             {subroutines.map((subroutine, index) => (
-              <View key={index} style={[styles.detailsContainer, { padding: 5 }]}>
+              <View key={index} style={[styles.subroutineContainer, { padding: 5 }]}>
+                <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+                <View style={{ paddingLeft: 20 }}>
                 <Text style={styles.text}>{subroutine.name}</Text>
-                <Text style={styles.inputLabel}>{subroutine.duration}</Text>
+                <Text style={[styles.inputLabel, {color: '#fff'}]}>{subroutine.duration}</Text>
+                </View>
               </View>
             ))}
-
-
-
 
             {/* Modal for adding subroutine */}
             <Modal
@@ -151,7 +154,7 @@ const RoutineOps = ({ route, navigation }) => {
                   </Pressable>
                   <Text style={styles.modalText}>Add a subroutine</Text>
                 </View>
-                <Text style={styles.inputLabel}>Sub Routine Name</Text>
+                <Text style={styles.inputLabel}>Subroutine Name</Text>
                 <View style={styles.detailsContainer}>
                   <TextInput
                     style={styles.input}
@@ -162,14 +165,14 @@ const RoutineOps = ({ route, navigation }) => {
                   />
                 </View>
 
-                <Text style={styles.inputLabel}>Sub Routine Duration</Text>
+                <Text style={styles.inputLabel}>Subroutine Duration</Text>
                 <View style={[styles.durationContainer]}>
-                  <Icon source="timer-outline" color="#000" size={26} />
+                  <Icon source="timer-outline" color="#fff" size={26} />
                   <TouchableOpacity
                     activeOpacity={0}
                     onPress={() => setSubroutineTimerVisible(true)} >
 
-                    <Text style={[styles.text, { paddingLeft: 10 }]}>
+                    <Text style={[styles.text, { paddingLeft: 10, color: '#fff' }]}>
                       {subroutineDuration || 'Set Duration'}
                     </Text>
 
@@ -204,9 +207,9 @@ const RoutineOps = ({ route, navigation }) => {
 
           </View>
 
-        </ScrollView>
 
       </View>
+        </ScrollView>
       <TouchableOpacity style={styles.button} onPress={saveRoutine}>
         <Text style={styles.buttonText}>SAVE ROUTINE</Text>
       </TouchableOpacity>
@@ -226,7 +229,8 @@ const styles = StyleSheet.create({
     height: 60,
     width: '100%',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#fff'
   },
   inputLabel: {
     fontSize: 16
@@ -255,14 +259,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 25,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     elevation: 5,
   },
   detailsContainer: {
     paddingHorizontal: 15,
     marginBottom: 15,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     elevation: 5,
   },
   modalButtonContainer: {
@@ -285,8 +289,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2
   },
   text: {
-    color: '#000',
-
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -305,7 +308,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: "bold",
     letterSpacing: 1.5
-  }
+  },
+  subroutineContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    backgroundColor: '#1a1a1a',
+    elevation: 5,
+  },
 });
 
 export default RoutineOps;

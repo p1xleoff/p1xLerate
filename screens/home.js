@@ -27,6 +27,10 @@ const Home = () => {
               <Text style={[styles.text, {color: '#fff'}]}>Check out routines</Text>
               <Icon source="chevron-right" color='#fff' size={28} />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Clear")}>
+              <Text style={[styles.text, {color: '#fff'}]}>Clear Data</Text>
+              <Icon source="chevron-right" color='#fff' size={28} />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
