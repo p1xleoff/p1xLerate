@@ -15,12 +15,8 @@ import { TimerPickerModal } from "react-native-timer-picker";
 import { Divider, Icon, ToggleButton } from "react-native-paper";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
-import {
-  saveRoutinesToStorage,
-  fetchRoutinesFromStorage,
-  saveSubroutinesToStorage,
-  fetchSubroutinesFromStorage,
-} from "../config/dbHelper";
+import { calculateTotalDuration } from '../config/utilities';
+import { saveRoutinesToStorage, fetchRoutinesFromStorage, saveSubroutinesToStorage, fetchSubroutinesFromStorage } from "../config/dbHelper";
 
 const RoutineOps = ({ route, navigation }) => {
   const [routineName, setRoutineName] = useState("");
@@ -95,22 +91,23 @@ const RoutineOps = ({ route, navigation }) => {
     const newRoutine = {
       id: routineId || new Date().getTime().toString(),
       name: routineName.trim(),
-      // description: [...routineDescription, currentDescription.trim()],
       subroutines: subroutines,
-      selectedTime: selectedTime, // Include selected time
-      selectedDays: selectedDays, // Include selected days
+      selectedTime: selectedTime.getTime(), // Convert to timestamp
+      selectedDays: selectedDays,
+      totalDuration: calculateTotalDuration(subroutines)
     };
   
     const routines = await fetchRoutinesFromStorage();
     const updatedRoutines = routineId
       ? routines.map((routine) =>
-        routine.id === routineId ? newRoutine : routine
-      )
+          routine.id === routineId ? newRoutine : routine
+        )
       : [...routines, newRoutine];
   
     await saveRoutinesToStorage(updatedRoutines);
-    navigation.navigate("RoutineList", { routine: newRoutine });
+    navigation.navigate("RoutineDetails", { routine: newRoutine });
   };
+  
 
   const addSubroutine = () => {
     if (subroutineName && subroutineDuration !== null) {
@@ -142,40 +139,10 @@ const RoutineOps = ({ route, navigation }) => {
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
-  const calculateTotalDuration = () => {
-    let totalDurationInSeconds = 0;
-  
-    subroutines.forEach((subroutine) => {
-      const durationParts = subroutine.duration.split(/\s+/);
-      for (let i = 0; i < durationParts.length; i += 2) {
-        const value = parseInt(durationParts[i]);
-        if (!isNaN(value)) {
-          if (durationParts[i + 1].includes('hour')) {
-            totalDurationInSeconds += value * 60 * 60;
-          } else if (durationParts[i + 1].includes('minute')) {
-            totalDurationInSeconds += value * 60;
-          } else if (durationParts[i + 1].includes('second')) {
-            totalDurationInSeconds += value;
-          }
-        }
-      }
-    });
-  
-    const duration = moment.duration(totalDurationInSeconds, 'seconds');
-    const formattedDuration = [];
-  
-    if (duration.hours() > 0) {
-      formattedDuration.push(`${duration.hours()} hour${duration.hours() > 1 ? 's' : ''}`);
-    }
-    if (duration.minutes() > 0) {
-      formattedDuration.push(`${duration.minutes()} minute${duration.minutes() > 1 ? 's' : ''}`);
-    }
-    if (duration.seconds() > 0) {
-      formattedDuration.push(`${duration.seconds()} second${duration.seconds() > 1 ? 's' : ''}`);
-    }
-  
-    return formattedDuration.join(' ');
-  };
+
+  const calculateTotalDurationValue = () => {
+    return calculateTotalDuration(subroutines);
+  };  
   
   return (
     <View style={styles.container}>
@@ -266,7 +233,7 @@ const RoutineOps = ({ route, navigation }) => {
             </View>
             <View style={styles.detailsContainer}>
             <Text style={{ color: '#fff', paddingVertical: 15, fontSize: 16, fontWeight: 'bold'}}>
-            {calculateTotalDuration()}
+            {calculateTotalDurationValue()}
             </Text>
             </View>
             <View

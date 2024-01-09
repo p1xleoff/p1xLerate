@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'rea
 import { Icon, FAB, Portal, ToggleButton } from 'react-native-paper';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { fetchRoutinesFromStorage, saveRoutinesToStorage } from '../config/dbHelper';
+import { calculateTotalDuration } from '../config/utilities';
 import moment from 'moment';
 
 const RoutineDetails = ({ route }) => {
@@ -14,7 +15,7 @@ const RoutineDetails = ({ route }) => {
 
   const selectedTime = routine.selectedTime;
   const selectedDays = routine.selectedDays;
-  
+
   const handleEditRoutine = () => {
     navigation.navigate('RoutineOps', { routineId: routine.id });
   };
@@ -34,7 +35,7 @@ const RoutineDetails = ({ route }) => {
         },
         {
           text: 'Delete',
-          onPress: async () =>  {
+          onPress: async () => {
             // fetch the current routines from storage
             const routines = await fetchRoutinesFromStorage();
             // filter out the routine to be deleted
@@ -50,7 +51,10 @@ const RoutineDetails = ({ route }) => {
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
-  
+  const calculateRoutineTotalDuration = () => {
+    return calculateTotalDuration(routine.subroutines);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -64,15 +68,16 @@ const RoutineDetails = ({ route }) => {
                 <Icon source="alarm" color="#000" size={24} />
                 <Text style={styles.descriptionText}>Alarm</Text>
               </View>
-              <Text style={styles.descriptionText}>{moment(selectedTime).format("LT")}</Text>
+              <Text style={styles.timeText}>{moment(selectedTime).format("LT")}</Text>
             </View>
             <View style={styles.routineHeaders}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon source="timer-outline" color="#000" size={24} />
                 <Text style={styles.descriptionText}>Duration</Text>
               </View>
-              <Text style={styles.descriptionText}>13 Minutes</Text>
+              <Text style={styles.timeText}>{calculateRoutineTotalDuration()}</Text>
             </View>
+
             <View>
               {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon source="calendar-week" color="#000" size={24} />
@@ -95,7 +100,7 @@ const RoutineDetails = ({ route }) => {
                     )}
                     value={selectedDays[day]}
                     // You might need to handle the onPress event appropriately
-                    onPress={() => {}}
+                    onPress={() => { }}
                     style={[
                       styles.toggleButton,
                       selectedDays[day] && styles.activeToggleButton,
@@ -254,20 +259,24 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     margin: 5,
     elevation: 10,
-    backgroundColor: '#dbdbdb',
+    backgroundColor: '#ededed',
   },
   activeToggleButton: {
     backgroundColor: '#000',
     elevation: 10,
   },
   dayIcon: {
-    color: '#fff',
+    color: '#000',
     fontWeight: 'bold',
     fontSize: 18,
   },
   activeDayIcon: {
     color: '#fff',
   },
+  timeText: {
+    fontWeight: 'bold', 
+    fontSize: 18 
+  }
 });
 
 export default RoutineDetails;
