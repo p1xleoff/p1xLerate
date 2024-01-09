@@ -142,7 +142,41 @@ const RoutineOps = ({ route, navigation }) => {
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
-
+  const calculateTotalDuration = () => {
+    let totalDurationInSeconds = 0;
+  
+    subroutines.forEach((subroutine) => {
+      const durationParts = subroutine.duration.split(/\s+/);
+      for (let i = 0; i < durationParts.length; i += 2) {
+        const value = parseInt(durationParts[i]);
+        if (!isNaN(value)) {
+          if (durationParts[i + 1].includes('hour')) {
+            totalDurationInSeconds += value * 60 * 60;
+          } else if (durationParts[i + 1].includes('minute')) {
+            totalDurationInSeconds += value * 60;
+          } else if (durationParts[i + 1].includes('second')) {
+            totalDurationInSeconds += value;
+          }
+        }
+      }
+    });
+  
+    const duration = moment.duration(totalDurationInSeconds, 'seconds');
+    const formattedDuration = [];
+  
+    if (duration.hours() > 0) {
+      formattedDuration.push(`${duration.hours()} hour${duration.hours() > 1 ? 's' : ''}`);
+    }
+    if (duration.minutes() > 0) {
+      formattedDuration.push(`${duration.minutes()} minute${duration.minutes() > 1 ? 's' : ''}`);
+    }
+    if (duration.seconds() > 0) {
+      formattedDuration.push(`${duration.seconds()} second${duration.seconds() > 1 ? 's' : ''}`);
+    }
+  
+    return formattedDuration.join(' ');
+  };
+  
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -153,7 +187,7 @@ const RoutineOps = ({ route, navigation }) => {
               <Text
                 style={[
                   styles.inputLabel,
-                  { paddingVertical: 10, paddingLeft: 10 },
+                  { paddingVertical: 5, paddingLeft: 10 },
                 ]}
               >
                 New Routine
@@ -184,12 +218,12 @@ const RoutineOps = ({ route, navigation }) => {
               /> */}
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon source="timer-outline" color="#000" size={24} />
-              <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 },]}>Routine Time</Text>
+              <Icon source="alarm-check" color="#000" size={24} />
+              <Text style={[styles.inputLabel, { paddingVertical: 5, paddingLeft: 10 },]}>Routine Time</Text>
             </View>
             <View style={styles.detailsContainer}>
               <TouchableOpacity onPress={showTimePicker}>
-                <Text style={styles.alarmText}> {moment(selectedTime).format("LT")} </Text>
+                <Text style={styles.alarmText}>{moment(selectedTime).format("LT")} </Text>
               </TouchableOpacity>
               {/* TimePickerModal for setting routine time */}
               <DateTimePickerModal
@@ -225,6 +259,15 @@ const RoutineOps = ({ route, navigation }) => {
                   ))}
                 </View>
               </View>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon source="timer-outline" color="#000" size={24} />
+              <Text style={[styles.inputLabel, { paddingVertical: 5, paddingLeft: 10 },]}>Routine Duration</Text>
+            </View>
+            <View style={styles.detailsContainer}>
+            <Text style={{ color: '#fff', paddingVertical: 15, fontSize: 16, fontWeight: 'bold'}}>
+            {calculateTotalDuration()}
+            </Text>
             </View>
             <View
               style={{
@@ -269,7 +312,6 @@ const RoutineOps = ({ route, navigation }) => {
                 </View>
               </View>
             ))}
-
             {/* Modal for adding subroutine */}
             <Modal
               animationType="slide"
@@ -399,7 +441,7 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 5,
     borderRadius: 5,
     backgroundColor: "#000",
     elevation: 5,
@@ -459,7 +501,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
     fontWeight: "bold",
-    marginTop: 12,
+    marginTop: 5,
   }, 
   daysContainer: {
     marginBottom: 20,
@@ -468,7 +510,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     backgroundColor: '#000',
-    paddingVertical: 5,
   },
   toggleButton: { // Inactive button color
     borderRadius: 50,
