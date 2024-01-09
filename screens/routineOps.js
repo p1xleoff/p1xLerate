@@ -66,7 +66,7 @@ const RoutineOps = ({ route, navigation }) => {
       [day]: !prevDays[day],
     }));
   };
-  
+
   //edit stuff
   useEffect(() => {
     // If routineId is passed through route.params, load routine data for editing
@@ -97,15 +97,17 @@ const RoutineOps = ({ route, navigation }) => {
       name: routineName.trim(),
       // description: [...routineDescription, currentDescription.trim()],
       subroutines: subroutines,
+      selectedTime: selectedTime, // Include selected time
+      selectedDays: selectedDays, // Include selected days
     };
-
+  
     const routines = await fetchRoutinesFromStorage();
     const updatedRoutines = routineId
       ? routines.map((routine) =>
-          routine.id === routineId ? newRoutine : routine
-        )
+        routine.id === routineId ? newRoutine : routine
+      )
       : [...routines, newRoutine];
-
+  
     await saveRoutinesToStorage(updatedRoutines);
     navigation.navigate("RoutineList", { routine: newRoutine });
   };
@@ -134,6 +136,11 @@ const RoutineOps = ({ route, navigation }) => {
     const formattedDuration = `${hours} ${minutes} ${seconds}`.trim();
     setSubroutineDuration(formattedDuration);
     setSubroutineTimerVisible(false);
+  };
+
+  //capitalize first letter of the day sunday -> Sunday
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   return (
@@ -178,20 +185,11 @@ const RoutineOps = ({ route, navigation }) => {
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Icon source="timer-outline" color="#000" size={24} />
-              <Text
-                style={[
-                  styles.inputLabel,
-                  { paddingVertical: 10, paddingLeft: 10 },
-                ]}
-              >
-                Routine Time
-              </Text>
+              <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 },]}>Routine Time</Text>
             </View>
             <View style={styles.detailsContainer}>
               <TouchableOpacity onPress={showTimePicker}>
-                <Text style={styles.alarmText}>
-                  {moment(selectedTime).format("LT")}
-                </Text>
+                <Text style={styles.alarmText}> {moment(selectedTime).format("LT")} </Text>
               </TouchableOpacity>
               {/* TimePickerModal for setting routine time */}
               <DateTimePickerModal
@@ -200,26 +198,33 @@ const RoutineOps = ({ route, navigation }) => {
                 onConfirm={handleConfirmTime}
                 onCancel={hideTimePicker}
               />
-<View style={styles.daysContainer}>
-  <Text style={styles.inputLabel}>Active Days</Text>
-  <View style={styles.toggleButtonContainer}>
-    {Object.keys(selectedDays).map((day) => (
-      <ToggleButton
-        key={day}
-        icon={() => (
-          <Text style={styles.dayIcon}>
-            {selectedDays[day] ? day.charAt(0).toUpperCase() : ''}
-          </Text>
-        )}
-        value={selectedDays[day]}
-        onPress={() => toggleDay(day)}
-        style={[styles.toggleButton, selectedDays[day] && styles.activeToggleButton]}
-      >
-        
-      </ToggleButton>
-    ))}
-  </View>
-</View>
+              <View style={styles.daysContainer}>
+                <View style={styles.toggleButtonContainer}>
+                  {Object.keys(selectedDays).map((day) => (
+                    <ToggleButton
+                      key={day}
+                      icon={() => (
+                        <Text
+                          style={[
+                            styles.dayIcon,
+                            selectedDays[day] && styles.activeDayIcon,
+                          ]}
+                        >
+                          {day.charAt(0).toUpperCase()}
+                        </Text>
+                      )}
+                      value={selectedDays[day]}
+                      onPress={() => toggleDay(day)}
+                      style={[
+                        styles.toggleButton,
+                        selectedDays[day] && styles.activeToggleButton,
+                      ]}
+                    >
+                      {capitalizeFirstLetter(day)}
+                    </ToggleButton>
+                  ))}
+                </View>
+              </View>
             </View>
             <View
               style={{
@@ -396,7 +401,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 15,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     elevation: 5,
   },
   modalButtonContainer: {
@@ -452,28 +457,35 @@ const styles = StyleSheet.create({
   alarmText: {
     paddingVertical: 15,
     fontSize: 16,
-    color: "#000",
+    color: "#fff",
     fontWeight: "bold",
-  },  daysContainer: {
+    marginTop: 12,
+  }, 
+  daysContainer: {
     marginBottom: 20,
   },
   toggleButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     paddingVertical: 5,
   },
-  toggleButton: {
-    backgroundColor: 'gray', // Inactive button color
+  toggleButton: { // Inactive button color
     borderRadius: 50,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
     margin: 5,
     elevation: 10,
+    backgroundColor: '#2e2e2e',
   },
   activeToggleButton: {
-    backgroundColor: 'red', // Active button color
+    backgroundColor: '#fff', // Active button color
+    elevation: 10,
+  },
+  dayIcon: {
+    color: "#fff", // Default color for inactive days
+    fontWeight: "bold",
+  },
+  activeDayIcon: {
+    color: "#000", // Color for active days
   },
 });
 

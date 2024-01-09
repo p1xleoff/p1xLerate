@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Icon, FAB, Portal } from 'react-native-paper';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { Icon, FAB, Portal, ToggleButton } from 'react-native-paper';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { fetchRoutinesFromStorage, saveRoutinesToStorage } from '../config/dbHelper';
+import moment from 'moment';
 
 const RoutineDetails = ({ route }) => {
   const { routine } = route.params;
@@ -11,6 +12,9 @@ const RoutineDetails = ({ route }) => {
   const [isFabOpen, setFabOpen] = useState(false);
   const isFocused = useIsFocused();
 
+  const selectedTime = routine.selectedTime;
+  const selectedDays = routine.selectedDays;
+  
   const handleEditRoutine = () => {
     navigation.navigate('RoutineOps', { routineId: routine.id });
   };
@@ -43,7 +47,10 @@ const RoutineDetails = ({ route }) => {
       ]
     );
   };
-
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+  
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -57,7 +64,7 @@ const RoutineDetails = ({ route }) => {
                 <Icon source="alarm" color="#000" size={24} />
                 <Text style={styles.descriptionText}>Alarm</Text>
               </View>
-              <Text style={styles.descriptionText}>8:40 AM</Text>
+              <Text style={styles.descriptionText}>{moment(selectedTime).format("LT")}</Text>
             </View>
             <View style={styles.routineHeaders}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -66,7 +73,41 @@ const RoutineDetails = ({ route }) => {
               </View>
               <Text style={styles.descriptionText}>13 Minutes</Text>
             </View>
+            <View>
+              {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon source="calendar-week" color="#000" size={24} />
+                <Text style={styles.descriptionText}>Selected Days</Text>
+              </View> */}
+              {/* Display selected time and days */}
+              <View style={styles.daysContainer}>
+                {Object.keys(selectedDays).map((day) => (
+                  <ToggleButton
+                    key={day}
+                    icon={() => (
+                      <Text
+                        style={[
+                          styles.dayIcon,
+                          selectedDays[day] && styles.activeDayIcon,
+                        ]}
+                      >
+                        {day.charAt(0).toUpperCase()}
+                      </Text>
+                    )}
+                    value={selectedDays[day]}
+                    // You might need to handle the onPress event appropriately
+                    onPress={() => {}}
+                    style={[
+                      styles.toggleButton,
+                      selectedDays[day] && styles.activeToggleButton,
+                    ]}
+                  >
+                    {capitalizeFirstLetter(day)}
+                  </ToggleButton>
+                ))}
+              </View>
+            </View>
           </View>
+
           <View>
             <Text style={styles.subroutineHeader}>Subroutines</Text>
             <View style={{ marginBottom: 75 }}>
@@ -196,6 +237,36 @@ const styles = StyleSheet.create({
   },
   fabItem: {
     color: 'red',
+  },
+  daysContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  toggleButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#000',
+    paddingVertical: 5,
+  },
+  toggleButton: {
+    borderRadius: 50,
+    margin: 5,
+    elevation: 10,
+    backgroundColor: '#dbdbdb',
+  },
+  activeToggleButton: {
+    backgroundColor: '#000',
+    elevation: 10,
+  },
+  dayIcon: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  activeDayIcon: {
+    color: '#fff',
   },
 });
 
