@@ -1,21 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, ScrollView, Modal, StyleSheet, Pressable, StatusBar } from 'react-native';
-import { TimerPickerModal } from 'react-native-timer-picker';
-import { Divider, Icon } from "react-native-paper";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  StyleSheet,
+  Pressable,
+  StatusBar,
+} from "react-native";
+import { TimerPickerModal } from "react-native-timer-picker";
+import { Divider, Icon, ToggleButton } from "react-native-paper";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import moment from "moment";
 import {
   saveRoutinesToStorage,
   fetchRoutinesFromStorage,
   saveSubroutinesToStorage,
   fetchSubroutinesFromStorage,
-} from '../config/dbHelper';
+} from "../config/dbHelper";
 
 const RoutineOps = ({ route, navigation }) => {
-  const [routineName, setRoutineName] = useState('');
+  const [routineName, setRoutineName] = useState("");
   // const [routineDescription, setRoutineDescription] = useState([]);
   const [routineId, setRoutineId] = useState(null);
 
-  const [subroutineName, setSubroutineName] = useState('');
-  const [subroutineDuration, setSubroutineDuration] = useState('');
+  const [subroutineName, setSubroutineName] = useState("");
+  const [subroutineDuration, setSubroutineDuration] = useState("");
   const [subroutines, setSubroutines] = useState([]);
   // const [currentDescription, setCurrentDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -23,17 +36,52 @@ const RoutineOps = ({ route, navigation }) => {
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
+  //alarm/ time stuff
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [timePickerVisible, setTimePickerVisible] = useState(false);
+  const showTimePicker = () => {
+    setTimePickerVisible(true);
+  };
+  const hideTimePicker = () => {
+    setTimePickerVisible(false);
+  };
+  const handleConfirmTime = (date) => {
+    hideTimePicker();
+    setSelectedTime(date);
+  };
+
+  //select days for alarm/time
+  const [selectedDays, setSelectedDays] = useState({
+    sunday: false,
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    saturday: false,
+  });
+  const toggleDay = (day) => {
+    setSelectedDays((prevDays) => ({
+      ...prevDays,
+      [day]: !prevDays[day],
+    }));
+  };
+  
+  //edit stuff
   useEffect(() => {
     // If routineId is passed through route.params, load routine data for editing
     const { routineId: editRoutineId } = route.params || {};
     if (editRoutineId) {
       loadRoutineData(editRoutineId);
-    } const openTimePicker = () => setTimePickerVisible(true);
+    }
+    const openTimePicker = () => setTimePickerVisible(true);
   }, []);
 
   const loadRoutineData = async (editRoutineId) => {
     const routines = await fetchRoutinesFromStorage();
-    const editRoutine = routines.find((routine) => routine.id === editRoutineId);
+    const editRoutine = routines.find(
+      (routine) => routine.id === editRoutineId
+    );
 
     if (editRoutine) {
       setRoutineId(editRoutine.id);
@@ -50,16 +98,18 @@ const RoutineOps = ({ route, navigation }) => {
       // description: [...routineDescription, currentDescription.trim()],
       subroutines: subroutines,
     };
-  
+
     const routines = await fetchRoutinesFromStorage();
     const updatedRoutines = routineId
-      ? routines.map((routine) => (routine.id === routineId ? newRoutine : routine))
+      ? routines.map((routine) =>
+          routine.id === routineId ? newRoutine : routine
+        )
       : [...routines, newRoutine];
-  
+
     await saveRoutinesToStorage(updatedRoutines);
-    navigation.navigate('RoutineList', { routine: newRoutine });
+    navigation.navigate("RoutineList", { routine: newRoutine });
   };
-  
+
   const addSubroutine = () => {
     if (subroutineName && subroutineDuration !== null) {
       const newSubroutine = {
@@ -67,39 +117,50 @@ const RoutineOps = ({ route, navigation }) => {
         duration: subroutineDuration,
       };
       setSubroutines([...subroutines, newSubroutine]);
-      setSubroutineName('');
+      setSubroutineName("");
       setSubroutineDuration(null);
     }
     closeModal();
   };
 
   const handleSetSubDuration = (pickedDuration) => {
-    const hours = pickedDuration.hours > 0 ? `${pickedDuration.hours} hours` : '';
-    const minutes = pickedDuration.minutes > 0 ? `${pickedDuration.minutes} minutes` : '';
-    const seconds = pickedDuration.seconds > 0 ? `${pickedDuration.seconds} seconds` : '';
+    const hours =
+      pickedDuration.hours > 0 ? `${pickedDuration.hours} hours` : "";
+    const minutes =
+      pickedDuration.minutes > 0 ? `${pickedDuration.minutes} minutes` : "";
+    const seconds =
+      pickedDuration.seconds > 0 ? `${pickedDuration.seconds} seconds` : "";
 
     const formattedDuration = `${hours} ${minutes} ${seconds}`.trim();
     setSubroutineDuration(formattedDuration);
     setSubroutineTimerVisible(false);
   };
+
   return (
     <View style={styles.container}>
-        <ScrollView>
-      <View style={styles.innerContainer}>
-
-          <View style={{ margin: 10, marginBottom: 80}}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <ScrollView>
+        <View style={styles.innerContainer}>
+          <View style={{ margin: 10, marginBottom: 80 }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Icon source="dots-circle" color="#000" size={24} />
-              <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 }]}>New Routine</Text>
+              <Text
+                style={[
+                  styles.inputLabel,
+                  { paddingVertical: 10, paddingLeft: 10 },
+                ]}
+              >
+                New Routine
+              </Text>
             </View>
             <View style={styles.detailsContainer}>
               <TextInput
                 style={styles.input}
                 placeholder="Enter routine name"
+                placeholderTextColor="#c2c2c2"
+                cursorColor={"#fff"}
                 value={routineName}
                 onChangeText={(text) => setRoutineName(text)}
               />
-              
               {/* Display routine description
               {routineDescription.map((description, index) => (
                 <View key={index}>
@@ -114,12 +175,69 @@ const RoutineOps = ({ route, navigation }) => {
                 value={currentDescription}
                 onChangeText={(text) => setCurrentDescription(text)}
               /> */}
-              
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon source="timer-outline" color="#000" size={24} />
+              <Text
+                style={[
+                  styles.inputLabel,
+                  { paddingVertical: 10, paddingLeft: 10 },
+                ]}
+              >
+                Routine Time
+              </Text>
+            </View>
+            <View style={styles.detailsContainer}>
+              <TouchableOpacity onPress={showTimePicker}>
+                <Text style={styles.alarmText}>
+                  {moment(selectedTime).format("LT")}
+                </Text>
+              </TouchableOpacity>
+              {/* TimePickerModal for setting routine time */}
+              <DateTimePickerModal
+                isVisible={timePickerVisible}
+                mode="time"
+                onConfirm={handleConfirmTime}
+                onCancel={hideTimePicker}
+              />
+<View style={styles.daysContainer}>
+  <Text style={styles.inputLabel}>Active Days</Text>
+  <View style={styles.toggleButtonContainer}>
+    {Object.keys(selectedDays).map((day) => (
+      <ToggleButton
+        key={day}
+        icon={() => (
+          <Text style={styles.dayIcon}>
+            {selectedDays[day] ? day.charAt(0).toUpperCase() : ''}
+          </Text>
+        )}
+        value={selectedDays[day]}
+        onPress={() => toggleDay(day)}
+        style={[styles.toggleButton, selectedDays[day] && styles.activeToggleButton]}
+      >
+        
+      </ToggleButton>
+    ))}
+  </View>
+</View>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Icon source="gamepad-circle-down" color="#000" size={24} />
-                <Text style={[styles.inputLabel, { paddingVertical: 10, paddingLeft: 10 }]}>Subroutines</Text>
+                <Text
+                  style={[
+                    styles.inputLabel,
+                    { paddingVertical: 10, paddingLeft: 10 },
+                  ]}
+                >
+                  Subroutines
+                </Text>
               </View>
               {/* Button to add subroutine */}
               <TouchableOpacity onPress={openModal}>
@@ -129,11 +247,20 @@ const RoutineOps = ({ route, navigation }) => {
 
             {/* Display subroutines */}
             {subroutines.map((subroutine, index) => (
-              <View key={index} style={[styles.subroutineContainer, { padding: 5 }]}>
-                <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+              <View
+                key={index}
+                style={[styles.subroutineContainer, { padding: 5 }]}
+              >
+                <Icon
+                  source="hexagon-multiple-outline"
+                  color="#fff"
+                  size={24}
+                />
                 <View style={{ paddingLeft: 20 }}>
-                <Text style={styles.text}>{subroutine.name}</Text>
-                <Text style={[styles.inputLabel, {color: '#fff'}]}>{subroutine.duration}</Text>
+                  <Text style={styles.text}>{subroutine.name}</Text>
+                  <Text style={[styles.inputLabel, { color: "#fff" }]}>
+                    {subroutine.duration}
+                  </Text>
                 </View>
               </View>
             ))}
@@ -150,7 +277,7 @@ const RoutineOps = ({ route, navigation }) => {
               <View style={styles.modalContainer}>
                 <View style={styles.modalTitle}>
                   <Pressable onPress={closeModal}>
-                    <Icon source="close" color='#000' size={28} />
+                    <Icon source="close" color="#000" size={28} />
                   </Pressable>
                   <Text style={styles.modalText}>Add a subroutine</Text>
                 </View>
@@ -159,8 +286,9 @@ const RoutineOps = ({ route, navigation }) => {
                   <TextInput
                     style={styles.input}
                     value={subroutineName}
-                    placeholder='breathe, walk'
-                    placeholderTextColor={'#c2c2c2'}
+                    placeholder="breathe, walk"
+                    placeholderTextColor="#c2c2c2"
+                    cursorColor={"#fff"}
                     onChangeText={(text) => setSubroutineName(text)}
                   />
                 </View>
@@ -170,12 +298,13 @@ const RoutineOps = ({ route, navigation }) => {
                   <Icon source="timer-outline" color="#fff" size={26} />
                   <TouchableOpacity
                     activeOpacity={0}
-                    onPress={() => setSubroutineTimerVisible(true)} >
-
-                    <Text style={[styles.text, { paddingLeft: 10, color: '#fff' }]}>
-                      {subroutineDuration || 'Set Duration'}
+                    onPress={() => setSubroutineTimerVisible(true)}
+                  >
+                    <Text
+                      style={[styles.text, { paddingLeft: 10, color: "#fff" }]}
+                    >
+                      {subroutineDuration || "Set Duration"}
                     </Text>
-
                   </TouchableOpacity>
                 </View>
                 <View style={styles.modalButtonContainer}>
@@ -202,14 +331,15 @@ const RoutineOps = ({ route, navigation }) => {
                   }}
                 />
               </View>
-              <StatusBar barStyle="light-content" backgroundColor="#000" translucent={true} />
+              <StatusBar
+                barStyle="light-content"
+                backgroundColor="#000"
+                translucent={true}
+              />
             </Modal>
-
           </View>
-
-
-      </View>
-        </ScrollView>
+        </View>
+      </ScrollView>
       <TouchableOpacity style={styles.button} onPress={saveRoutine}>
         <Text style={styles.buttonText}>SAVE ROUTINE</Text>
       </TouchableOpacity>
@@ -220,41 +350,41 @@ const RoutineOps = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: "#fff",
   },
   innerContainer: {
     marginHorizontal: "2%",
   },
   input: {
     height: 60,
-    width: '100%',
+    width: "100%",
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff'
+    fontWeight: "bold",
+    color: "#fff",
   },
   inputLabel: {
-    fontSize: 16
+    fontSize: 16,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
-    top: StatusBar.currentHeight + 15
+    top: StatusBar.currentHeight + 15,
   },
   modalTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   modalText: {
     marginVertical: 20,
     fontSize: 24,
-    fontWeight: '500',
+    fontWeight: "500",
     paddingLeft: 20,
   },
   durationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 15,
     marginBottom: 25,
@@ -266,32 +396,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 15,
     borderRadius: 5,
-    backgroundColor: "#000",
+    backgroundColor: "#fff",
     elevation: 5,
   },
   modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   modalButton: {
-    backgroundColor: '#000',
-    width: '45%',
+    backgroundColor: "#000",
+    width: "45%",
     marginTop: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 4,
-    alignItems: 'center'
+    alignItems: "center",
   },
   modalButtonText: {
     fontSize: 18,
-    color: '#fff',
-    fontWeight: '600',
-    letterSpacing: 1.2
+    color: "#fff",
+    fontWeight: "600",
+    letterSpacing: 1.2,
   },
   text: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   button: {
     position: "absolute",
@@ -301,23 +431,49 @@ const styles = StyleSheet.create({
     elevation: 10,
     alignItems: "center",
     backgroundColor: "#000",
-    width: '90%',
-    alignSelf: "center"
+    width: "90%",
+    alignSelf: "center",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontWeight: "bold",
-    letterSpacing: 1.5
+    letterSpacing: 1.5,
   },
   subroutineContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 10,
     marginVertical: 5,
     borderRadius: 5,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: "#1a1a1a",
     elevation: 5,
+  },
+  alarmText: {
+    paddingVertical: 15,
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "bold",
+  },  daysContainer: {
+    marginBottom: 20,
+  },
+  toggleButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    
+    backgroundColor: '#fff',
+    paddingVertical: 5,
+  },
+  toggleButton: {
+    backgroundColor: 'gray', // Inactive button color
+    borderRadius: 50,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    margin: 5,
+    elevation: 10,
+  },
+  activeToggleButton: {
+    backgroundColor: 'red', // Active button color
   },
 });
 

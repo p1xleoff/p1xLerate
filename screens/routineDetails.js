@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Icon, FAB, Portal } from 'react-native-paper';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { fetchRoutinesFromStorage, saveRoutinesToStorage } from '../config/dbHelper';
 
 const RoutineDetails = ({ route }) => {
   const { routine } = route.params;
@@ -17,6 +18,31 @@ const RoutineDetails = ({ route }) => {
   useEffect(() => {
     setFabVisible(true); // Reset FAB visibility when the component mounts
   }, [isFocused]);
+
+  const handleDeleteRoutine = async () => {
+    Alert.alert(
+      'Confirm Deletion',
+      `Are you sure you want to delete the list "${routine.name}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () =>  {
+            // fetch the current routines from storage
+            const routines = await fetchRoutinesFromStorage();
+            // filter out the routine to be deleted
+            const updatedRoutines = routines.filter((r) => r.id !== routine.id);
+            // save the updated routines back to storage
+            saveRoutinesToStorage(updatedRoutines);
+            navigation.navigate('RoutineList');
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -70,7 +96,7 @@ const RoutineDetails = ({ route }) => {
             style={styles.fabItem}
             actions={[
               {
-                onPress: () => console.log('Pressed delete'),
+                onPress: () => handleDeleteRoutine(),
                 icon: 'delete',
                 label: 'Delete Routine',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
