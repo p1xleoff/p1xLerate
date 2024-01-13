@@ -4,6 +4,7 @@ import { Icon, FAB, Portal, ToggleButton } from 'react-native-paper';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { fetchRoutinesFromStorage, saveRoutinesToStorage } from '../config/dbHelper';
 import { calculateTotalDuration } from '../config/utilities';
+import DraggableFlatList from 'react-native-draggable-flatlist';
 import moment from 'moment';
 
 const RoutineDetails = ({ route }) => {
@@ -48,16 +49,18 @@ const RoutineDetails = ({ route }) => {
       ]
     );
   };
+
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
+
   const calculateRoutineTotalDuration = () => {
     return calculateTotalDuration(routine.subroutines);
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+    
         <View style={styles.innerContainer}>
           <View style={[styles.detailsContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
             <Text style={styles.header}>{routine.name}</Text>
@@ -79,11 +82,6 @@ const RoutineDetails = ({ route }) => {
             </View>
 
             <View>
-              {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Icon source="calendar-week" color="#000" size={24} />
-                <Text style={styles.descriptionText}>Selected Days</Text>
-              </View> */}
-              {/* Display selected time and days */}
               <View style={styles.daysContainer}>
                 {Object.keys(selectedDays).map((day) => (
                   <ToggleButton
@@ -99,7 +97,6 @@ const RoutineDetails = ({ route }) => {
                       </Text>
                     )}
                     value={selectedDays[day]}
-                    // You might need to handle the onPress event appropriately
                     onPress={() => { }}
                     style={[
                       styles.toggleButton,
@@ -115,20 +112,35 @@ const RoutineDetails = ({ route }) => {
 
           <View>
             <Text style={styles.subroutineHeader}>Subroutines</Text>
-            <View style={{ marginBottom: 75 }}>
-              {routine.subroutines.map((subroutine, index) => (
-                <View key={index} style={styles.subroutineContainer}>
+            <DraggableFlatList
+              data={routine.subroutines}
+              renderItem={({ item, index, drag, isActive }) => (
+                <TouchableOpacity
+                  style={{
+                    ...styles.subroutineContainer,
+                    backgroundColor: isActive ? 'lightgrey' : '#1a1a1a',
+                  }}
+                  onLongPress={drag}
+                >
                   <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
                   <View style={{ paddingLeft: 20 }}>
-                    <Text style={styles.subroutineName}>{subroutine.name}</Text>
-                    <Text style={styles.subroutineDuration}>{subroutine.duration}</Text>
+                    <Text style={styles.subroutineName}>{item.name}</Text>
+                    <Text style={styles.subroutineDuration}>{item.duration}</Text>
                   </View>
-                </View>
-              ))}
-            </View>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => `subroutine-${index}`}
+              onDragEnd={({ data }) => {
+                // Update the order of subroutines after dragging
+                const updatedRoutine = { ...routine, subroutines: data };
+                // Save the updatedRoutine to storage or state
+                // For example: saveRoutinesToStorage(updatedRoutine);
+              }}
+              activationDistance={20}
+            />
           </View>
         </View>
-      </ScrollView>
+      
       <Portal>
         {isFocused && isFabVisible && (
           <FAB.Group
