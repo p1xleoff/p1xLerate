@@ -127,8 +127,8 @@ const RoutineDetails = ({ route }) => {
       style={{
         ...styles.subroutineContainer,
         backgroundColor: isActive ? 'gray' : '#000',
-        borderColor: isActive ? '#1f1f1f' : 'transparent',  // Border color when dragging
-        borderWidth: isActive ? 1 : 0,  // Border width when dragging
+        borderColor: isActive ? '#1f1f1f' : 'transparent',
+        borderWidth: isActive ? 1 : 0,  
       }}
       onLongPress={drag}
     >
