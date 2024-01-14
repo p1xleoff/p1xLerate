@@ -15,7 +15,7 @@ import { TimerPickerModal } from "react-native-timer-picker";
 import { Divider, Icon, ToggleButton } from "react-native-paper";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
-import { calculateTotalDuration } from '../config/utilities';
+import { calculateTotalDuration, calculateTotalSubroutines } from '../config/utilities';
 import { saveRoutinesToStorage, fetchRoutinesFromStorage, saveSubroutinesToStorage, fetchSubroutinesFromStorage } from "../config/dbHelper";
 
 const RoutineOps = ({ route, navigation }) => {
@@ -31,6 +31,8 @@ const RoutineOps = ({ route, navigation }) => {
   const [subroutineTimerVisible, setSubroutineTimerVisible] = useState(false);
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+
+  const totalSubroutines = subroutines ? calculateTotalSubroutines(subroutines) : 0;
 
   //alarm/ time stuff
   const [selectedTime, setSelectedTime] = useState(new Date());
@@ -78,24 +80,28 @@ const RoutineOps = ({ route, navigation }) => {
     const editRoutine = routines.find(
       (routine) => routine.id === editRoutineId
     );
-
+  
     if (editRoutine) {
       setRoutineId(editRoutine.id);
       setRoutineName(editRoutine.name);
-      // setRoutineDescription(editRoutine.description);
-      setSubroutines(editRoutine.subroutines || []);
+  
+      // Initialize selectedDays properly from the routine data
+      setSelectedDays(editRoutine.selectedDays);
+  
+      setSubroutines(Array.isArray(editRoutine.subroutines) ? editRoutine.subroutines : []);
     }
   };
+  
 
   const saveRoutine = async () => {
     const newRoutine = {
       id: routineId || new Date().getTime().toString(),
       name: routineName.trim(),
-      subroutines: subroutines,
+      subroutines: subroutines || [],  // Add this check
       selectedTime: selectedTime.getTime(), // Convert to timestamp
       selectedDays: selectedDays,
-      totalDuration: calculateTotalDuration(subroutines)
-    };
+      totalDuration: calculateTotalDuration(subroutines || [])  // Add this check
+    };   
   
     const routines = await fetchRoutinesFromStorage();
     const updatedRoutines = routineId
@@ -108,20 +114,17 @@ const RoutineOps = ({ route, navigation }) => {
     navigation.navigate("RoutineDetails", { routine: newRoutine });
   };
   
-
   const addSubroutine = () => {
     if (subroutineName && subroutineDuration !== null) {
-      const newSubroutine = {
-        name: subroutineName.trim(),
-        duration: subroutineDuration,
-      };
+      const newSubroutine = { name: subroutineName.trim(), duration: subroutineDuration };
       setSubroutines([...subroutines, newSubroutine]);
       setSubroutineName("");
       setSubroutineDuration(null);
     }
     closeModal();
   };
-
+  
+  
   const handleSetSubDuration = (pickedDuration) => {
     const hours =
       pickedDuration.hours > 0 ? `${pickedDuration.hours} hours` : "";
@@ -251,7 +254,7 @@ const RoutineOps = ({ route, navigation }) => {
                     { paddingVertical: 10, paddingLeft: 10 },
                   ]}
                 >
-                  Subroutines
+                  Subroutines ({totalSubroutines})
                 </Text>
               </View>
               {/* Button to add subroutine */}

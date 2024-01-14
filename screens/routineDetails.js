@@ -1,21 +1,80 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
-import { Icon, FAB, Portal, ToggleButton } from 'react-native-paper';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Alert, Pressable, FlatList } from 'react-native';
+import { Icon, FAB, Portal, ToggleButton, ActivityIndicator } from 'react-native-paper';
+import { useNavigation, useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { fetchRoutinesFromStorage, saveRoutinesToStorage } from '../config/dbHelper';
-import { calculateTotalDuration } from '../config/utilities';
+import { calculateTotalDuration, calculateTotalSubroutines } from '../config/utilities';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import moment from 'moment';
 
 const RoutineDetails = ({ route }) => {
-  const { routine } = route.params;
+  const { routine: initialRoutine } = route.params;
+  const [routine, setRoutine] = useState(initialRoutine);
+
   const navigation = useNavigation();
+
   const [isFabVisible, setFabVisible] = useState(true);
   const [isFabOpen, setFabOpen] = useState(false);
   const isFocused = useIsFocused();
 
   const selectedTime = routine.selectedTime;
   const selectedDays = routine.selectedDays;
+
+  const [loading, setLoading] = useState(false);
+  
+  const totalSubroutines = calculateTotalSubroutines(routine.subroutines);
+
+  useEffect(() => {
+    const updateStorage = async () => {
+      await saveRoutineToStorage({ ...routine, subroutines: routine.subroutines });
+    };
+    updateStorage();
+  }, [routine.subroutines]);
+  
+  const updateRoutine = useCallback(
+    async (updatedRoutine) => {
+      try {
+        setLoading(true);
+        await saveRoutineToStorage(updatedRoutine);
+        setRoutine(updatedRoutine);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setRoutine]
+  );
+  useFocusEffect(
+    React.useCallback(() => {
+      // Fetch the updated routine from storage when the screen is focused
+      const fetchUpdatedRoutine = async () => {
+        const routines = await fetchRoutinesFromStorage();
+        const updatedRoutine = routines.find(r => r.id === routine.id);
+
+        if (updatedRoutine) {
+          setRoutine(updatedRoutine);
+        }
+      };
+
+      fetchUpdatedRoutine();
+    }, [routine.id]) // Re-run effect when routine.id changes
+  );
+  const saveRoutineToStorage = async (updatedRoutine) => {
+    try {
+      //console.log('Updating storage:', updatedRoutine);
+      // Fetch the current routines from storage
+      const routines = await fetchRoutinesFromStorage();
+      // Update the routine in the array
+      const updatedRoutines = routines.map((r) =>
+        r.id === updatedRoutine.id ? updatedRoutine : r
+      );
+      // Save the updated routines back to storage
+      await saveRoutinesToStorage(updatedRoutines);
+      //console.log('Storage updated successfully');
+    } catch (error) {
+      console.error('Error saving routine to storage:', error);
+      //console.log('Current routines:', await fetchRoutinesFromStorage());
+    }
+  };
 
   const handleEditRoutine = () => {
     navigation.navigate('RoutineOps', { routineId: routine.id });
@@ -24,6 +83,10 @@ const RoutineDetails = ({ route }) => {
   useEffect(() => {
     setFabVisible(true); // Reset FAB visibility when the component mounts
   }, [isFocused]);
+  const handleDragEnd = ({ data }) => {
+    const updatedRoutine = { ...routine, subroutines: data };
+    updateRoutine(updatedRoutine);
+  };
 
   const handleDeleteRoutine = async () => {
     Alert.alert(
@@ -58,89 +121,94 @@ const RoutineDetails = ({ route }) => {
     return calculateTotalDuration(routine.subroutines);
   };
 
+  const renderItem = ({ item, index, drag, isActive }) => (
+    <Pressable
+    android_ripple={{color: '#525252'}}
+      style={{
+        ...styles.subroutineContainer,
+        backgroundColor: isActive ? 'gray' : '#000',
+        borderColor: isActive ? '#1f1f1f' : 'transparent',  // Border color when dragging
+        borderWidth: isActive ? 1 : 0,  // Border width when dragging
+      }}
+      onLongPress={drag}
+    >
+      <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+      <View style={{ paddingLeft: 20 }}>
+        <Text style={styles.subroutineName}>{item.name}</Text>
+        <Text style={styles.subroutineDuration}>{item.duration}</Text>
+      </View>
+    </Pressable>
+  );
+
   return (
     <View style={styles.container}>
-    
-        <View style={styles.innerContainer}>
-          <View style={[styles.detailsContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-            <Text style={styles.header}>{routine.name}</Text>
+      <View style={styles.innerContainer}>
+        {/* <View style={[styles.detailsContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+        </View> */}
+        <View style={styles.detailsContainer}>
+          <Text style={styles.header}>{routine.name}</Text>
+          <View style={styles.routineHeaders}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icon source="alarm" color="#000" size={24} />
+              <Text style={styles.descriptionText}>Alarm</Text>
+            </View>
+            <Text style={styles.timeText}>{moment(selectedTime).format("LT")}</Text>
           </View>
-          <View style={styles.detailsContainer}>
-            <View style={styles.routineHeaders}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Icon source="alarm" color="#000" size={24} />
-                <Text style={styles.descriptionText}>Alarm</Text>
-              </View>
-              <Text style={styles.timeText}>{moment(selectedTime).format("LT")}</Text>
+          <View style={styles.routineHeaders}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icon source="timer-outline" color="#000" size={24} />
+              <Text style={styles.descriptionText}>Duration</Text>
             </View>
-            <View style={styles.routineHeaders}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Icon source="timer-outline" color="#000" size={24} />
-                <Text style={styles.descriptionText}>Duration</Text>
-              </View>
-              <Text style={styles.timeText}>{calculateRoutineTotalDuration()}</Text>
-            </View>
-
-            <View>
-              <View style={styles.daysContainer}>
-                {Object.keys(selectedDays).map((day) => (
-                  <ToggleButton
-                    key={day}
-                    icon={() => (
-                      <Text
-                        style={[
-                          styles.dayIcon,
-                          selectedDays[day] && styles.activeDayIcon,
-                        ]}
-                      >
-                        {day.charAt(0).toUpperCase()}
-                      </Text>
-                    )}
-                    value={selectedDays[day]}
-                    onPress={() => { }}
-                    style={[
-                      styles.toggleButton,
-                      selectedDays[day] && styles.activeToggleButton,
-                    ]}
-                  >
-                    {capitalizeFirstLetter(day)}
-                  </ToggleButton>
-                ))}
-              </View>
-            </View>
+            <Text style={styles.timeText}>{calculateRoutineTotalDuration()}</Text>
           </View>
 
           <View>
-            <Text style={styles.subroutineHeader}>Subroutines</Text>
-            <DraggableFlatList
-              data={routine.subroutines}
-              renderItem={({ item, index, drag, isActive }) => (
-                <TouchableOpacity
-                  style={{
-                    ...styles.subroutineContainer,
-                    backgroundColor: isActive ? 'lightgrey' : '#1a1a1a',
-                  }}
-                  onLongPress={drag}
+            <View style={styles.daysContainer}>
+              {Object.keys(selectedDays).map((day) => (
+                <ToggleButton
+                  key={day}
+                  icon={() => (
+                    <Text
+                      style={[
+                        styles.dayIcon,
+                        selectedDays[day] && styles.activeDayIcon,
+                      ]}
+                    >
+                      {day.charAt(0).toUpperCase()}
+                    </Text>
+                  )}
+                  value={selectedDays[day]}
+                  onPress={() => { }}
+                  style={[
+                    styles.toggleButton,
+                    selectedDays[day] && styles.activeToggleButton,
+                  ]}
                 >
-                  <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
-                  <View style={{ paddingLeft: 20 }}>
-                    <Text style={styles.subroutineName}>{item.name}</Text>
-                    <Text style={styles.subroutineDuration}>{item.duration}</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item, index) => `subroutine-${index}`}
-              onDragEnd={({ data }) => {
-                // Update the order of subroutines after dragging
-                const updatedRoutine = { ...routine, subroutines: data };
-                // Save the updatedRoutine to storage or state
-                // For example: saveRoutinesToStorage(updatedRoutine);
-              }}
-              activationDistance={20}
-            />
+                  {capitalizeFirstLetter(day)}
+                </ToggleButton>
+              ))}
+            </View>
           </View>
         </View>
-      
+        <View style={{ flex: 1 }}>
+          <Text style={styles.subroutineHeader}>Subroutines ({totalSubroutines})</Text>
+          <DraggableFlatList
+            data={routine.subroutines}
+            showsVerticalScrollIndicator={false}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => `subroutine-${index}`}
+            onDragEnd={handleDragEnd}
+            activationDistance={20}
+            
+            />
+            {loading && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color="#000" />
+              </View>
+            )}
+        </View>
+      </View>
+
       <Portal>
         {isFocused && isFabVisible && (
           <FAB.Group
@@ -188,10 +256,19 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     marginHorizontal: '2%',
+    flex: 1,
+    marginBottom: '15%',
   },
   header: {
-    fontSize: 20,
+    fontSize: 22,
+    marginBottom: 5,
     fontWeight: 'bold',
+    letterSpacing: 0.8,
+    backgroundColor: '#fff',
+    elevation: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
   routineHeaders: {
     flexDirection: 'row',
@@ -220,12 +297,9 @@ const styles = StyleSheet.create({
   subroutineContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    marginVertical: 5,
+    padding: 10,
+    margin: 5,
     borderRadius: 5,
-    backgroundColor: '#1a1a1a',
-    elevation: 5,
   },
   subroutineName: {
     fontSize: 18,
@@ -286,9 +360,14 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   timeText: {
-    fontWeight: 'bold', 
-    fontSize: 18 
-  }
+    fontWeight: 'bold',
+    fontSize: 18
+  },
+  loadingOverlay: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default RoutineDetails;

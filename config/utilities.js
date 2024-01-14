@@ -4,16 +4,18 @@ export const calculateTotalDuration = (subroutines) => {
   let totalDurationInSeconds = 0;
 
   subroutines.forEach((subroutine) => {
-    const durationParts = subroutine.duration.split(/\s+/);
-    for (let i = 0; i < durationParts.length; i += 2) {
-      const value = parseInt(durationParts[i]);
-      if (!isNaN(value)) {
-        if (durationParts[i + 1].includes('hour')) {
-          totalDurationInSeconds += value * 60 * 60;
-        } else if (durationParts[i + 1].includes('minute')) {
-          totalDurationInSeconds += value * 60;
-        } else if (durationParts[i + 1].includes('second')) {
-          totalDurationInSeconds += value;
+    if (subroutine && subroutine.duration) {
+      const durationParts = subroutine.duration.split(/\s+/);
+      for (let i = 0; i < durationParts.length; i += 2) {
+        const value = parseInt(durationParts[i]);
+        if (!isNaN(value)) {
+          if (durationParts[i + 1].includes('hour')) {
+            totalDurationInSeconds += value * 60 * 60;
+          } else if (durationParts[i + 1].includes('minute')) {
+            totalDurationInSeconds += value * 60;
+          } else if (durationParts[i + 1].includes('second')) {
+            totalDurationInSeconds += value;
+          }
         }
       }
     }
@@ -33,4 +35,16 @@ export const calculateTotalDuration = (subroutines) => {
   }
 
   return formattedDuration.join(' ');
+};
+
+//calculate number of subroutines in a routine
+export const calculateTotalSubroutines = (subroutines) => {
+  // Check if subroutines is defined and not null
+  if (subroutines && subroutines.length) {
+    // Calculate total subroutines
+    return subroutines.length;
+  } else {
+    // Handle the case when subroutines is not defined or empty
+    return 0;
+  }
 };

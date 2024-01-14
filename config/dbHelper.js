@@ -81,6 +81,10 @@ const fetchSubroutinesFromStorage = async (routineId) => {
     return [];
   }
 };
+//calculate number of subroutines in a routine
+const calculateTotalSubroutines = (routines) => {
+  return routines.reduce((total, routine) => total + routine.subroutines.length, 0);
+};
 
 export {
   saveTasksToStorage,
@@ -91,4 +95,5 @@ export {
   fetchRoutinesFromStorage,
   saveSubroutinesToStorage,
   fetchSubroutinesFromStorage,
+  calculateTotalSubroutines
 };
