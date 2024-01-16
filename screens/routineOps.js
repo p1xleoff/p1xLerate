@@ -111,7 +111,7 @@ const RoutineOps = ({ route, navigation }) => {
       subroutines: subroutines || [], // Add this check
       selectedTime: selectedTime.getTime(), // Convert to timestamp
       selectedDays: selectedDays,
-      totalDuration: calculateTotalDuration(subroutines || []), // Add this check
+      totalDuration: calculateTotalDuration(subroutines || []),
     };
 
     const routines = await fetchRoutinesFromStorage();
@@ -134,13 +134,14 @@ const RoutineOps = ({ route, navigation }) => {
       const newSubroutine = {
         name: subroutineName.trim(),
         duration: formattedDuration,
+        completed: false, // Set completed to false for new subroutines
       };
       setSubroutines([...subroutines, newSubroutine]);
       setSubroutineName("");
       setSubroutineDuration(null);
     }
     closeModal();
-  };
+  };    
 
   const formatDuration = (duration) => {
     return `${duration} minutes`;
