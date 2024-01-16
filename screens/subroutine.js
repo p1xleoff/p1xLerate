@@ -1,93 +1,196 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import moment from 'moment';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  StatusBar,
+  Pressable,
+} from 'react-native';
+import { Divider, Icon } from 'react-native-paper';
 
-const Subroutine = ({ route, navigation }) => {
-    const { subroutine } = route.params;
-    const [isPlaying, setPlaying] = useState(false);
-  
-    // You can use this state to keep track of the remaining time
-    const [remainingTime, setRemainingTime] = useState(subroutine.durationInSeconds);
-  
-    useEffect(() => {
-      let timer;
-      if (isPlaying && remainingTime > 0) {
-        timer = setInterval(() => {
-          setRemainingTime((prevTime) => prevTime - 1);
-        }, 1000);
-      } else if (remainingTime === 0) {
-        // Timer has reached 0, you can add logic here
-        setPlaying(false);
-      }
-  
-      // Clear the interval when the component unmounts
-      return () => clearInterval(timer);
-    }, [isPlaying, remainingTime]);
-  
-    const handleStart = () => {
-      setPlaying(true);
+const Subroutine = ({ navigation, route }) => {
+  const { subroutine, routine } = route.params;
+
+  const parseDuration = (durationString) => {
+    const numericValue = parseInt(durationString, 10);
+    return isNaN(numericValue) ? 0 : numericValue * 60; // Convert to seconds
+  };
+
+  const [timer, setTimer] = useState(parseDuration(subroutine.duration));
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    let interval;
+
+    if (isActive) {
+      interval = setInterval(() => {
+        if (timer > 0) {
+          setTimer((prevTimer) => prevTimer - 1);
+        } else {
+          setIsActive(false);
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(interval);
     };
-  
-    const handlePause = () => {
-      setPlaying(false);
-    };
-  
-    const handleSkip = () => {
-      // You can add skip logic here
-      setPlaying(false);
-      setRemainingTime(0);
-    };
-  
-    return (
-      <View style={styles.container}>
-        <CountdownCircleTimer
-          isPlaying={isPlaying}
-          duration={subroutine.durationInSeconds}
-          colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-          onComplete={() => [true, 0]} // Change onComplete logic as needed
-        >
-          {({ remainingTime, animatedColor }) => (
-            <Text style={{ color: animatedColor, fontSize: 48 }}>
-              {moment.utc(remainingTime * 1000).format('mm:ss')} {/* Convert seconds to milliseconds */}
-            </Text>
-          )}
-        </CountdownCircleTimer>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleStart}>
-            <Text style={styles.buttonText}>Start</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handlePause}>
-            <Text style={styles.buttonText}>Pause</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleSkip}>
-            <Text style={styles.buttonText}>Skip</Text>
-          </TouchableOpacity>
+  }, [isActive, timer]);
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(
+      2,
+      '0'
+    )}`;
+  };
+
+  const handleStart = () => {
+    setIsActive(true);
+  };
+
+  const handlePause = () => {
+    setIsActive(false);
+  };
+
+  const handleSkip = () => {
+    navigation.navigate('RoutineDetails', { routine: routine });
+  };
+
+  const handleComplete = () => {
+    setIsActive(false);
+    setTimer(0);
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#6a51ae" />
+      <View style={styles.innerContainer}>
+        <View style={styles.title}>
+          <Text style={styles.subName}>{subroutine.name}</Text>
         </View>
       </View>
-    );
-  };
+      <View style={styles.timerContainer}>
+        <Text style={styles.timer}>{formatTime(timer)}</Text>
+      </View>
+      <View style={styles.controlCenter}>
+        <View style={styles.buttonContainer}>
+          <Pressable
+            style={styles.playButton}
+            onPress={isActive ? handlePause : handleStart}
+          >
+            {isActive ? (
+              <Icon
+                source="pause"
+                color="#fff"
+                size={40}
+                style={styles.addIcon}
+              />
+            ) : (
+              <Icon
+                source="play"
+                color="#fff"
+                size={40}
+                style={styles.addIcon}
+              />
+            )}
+          </Pressable>
+          <Text style={styles.buttonText}>{isActive ? 'Pause' : 'Start'}</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <Pressable style={[styles.playButton, { width: 80, height: 80 }]} onPress={handleComplete} >
+            <Icon source="check" color="#fff" size={40} style={styles.addIcon} />
+          </Pressable>
+          <Text style={styles.buttonText}>Complete</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.playButton} onPress={handleSkip}>
+            <Icon source="skip-next" color="#fff" size={40} style={styles.addIcon} />
+          </Pressable>
+          <Text style={styles.buttonText}>Skip</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#000',
+  },
+  innerContainer: {
+    marginTop: 20,
+    marginHorizontal: '2%',
+  },
+  subName: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    color: '#fff',
+  },
+  title: {
+    width: '90%',
+    backgroundColor: '#1a1a1a',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
     alignItems: 'center',
+    alignSelf: 'center',
+    elevation: 5,
+  },
+  timerContainer: {
+    alignItems: 'center',
+    marginVertical: 50,
+    position: 'absolute',
+    bottom: 160,
+    marginHorizontal: 15,
+    borderRadius: 5,
+    left: 0,
+    right: 0,
+    backgroundColor: '#1a1a1a'
+  },
+  playButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 70,
+    height: 70,
+    backgroundColor: '#000',
+    borderRadius: 100,
+    elevation: 10,
+  },
+  timer: {
+    fontSize: 60,
+    fontWeight: 'bold',
+    padding: 10,
+    letterSpacing: 2,
+    color: '#fff',
   },
   buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-  },
-  button: {
-    backgroundColor: '#000',
-    padding: 10,
-    marginHorizontal: 10,
-    borderRadius: 5,
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
     fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: 10,
+  },
+  controlCenter: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    position: 'absolute',
+    alignItems: 'center',
+    bottom: 15,
+    left: 0,
+    right: 0,
+    backgroundColor: '#171717',
+    marginHorizontal: 15,
+    borderRadius: 5,
+    paddingVertical: 30,
+    elevation: 7,
   },
 });
 

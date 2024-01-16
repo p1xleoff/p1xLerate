@@ -121,25 +121,52 @@ const RoutineDetails = ({ route }) => {
     return calculateTotalDuration(routine.subroutines);
   };
 
-  const renderItem = ({ item, index, drag, isActive }) => (
-    <Pressable
-    android_ripple={{color: '#525252'}}
-      style={{
-        ...styles.subroutineContainer,
-        backgroundColor: isActive ? 'gray' : '#000',
-        borderColor: isActive ? '#1f1f1f' : 'transparent',
-        borderWidth: isActive ? 1 : 0,  
-      }}
-      onLongPress={drag}
-    >
-      <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
-      <View style={{ paddingLeft: 20 }}>
-        <Text style={styles.subroutineName}>{item.name}</Text>
-        <Text style={styles.subroutineDuration}>{item.duration}</Text>
-      </View>
-    </Pressable>
-  );
+  const handleSubroutinePress = (subroutine) => {
+    // console.log('Navigating to Subroutine:', subroutine);
+    navigation.navigate('Subroutine', { subroutine });
+  };
+  
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
 
+  const renderItem = ({ item, index, drag, isActive }) => {
+    // Extract numeric value from duration string (assuming it's in the format "X minutes")
+    const durationMatch = item.duration.match(/(\d+)/);
+  
+    if (durationMatch) {
+      const durationInMinutes = parseInt(durationMatch[0], 10);
+  
+      return (
+        <Pressable
+          android_ripple={{color: '#525252'}}
+          style={{
+            ...styles.subroutineContainer,
+            backgroundColor: isActive ? 'gray' : '#000',
+            borderColor: isActive ? '#1f1f1f' : 'transparent',
+            borderWidth: isActive ? 1 : 0,
+          }}
+          onLongPress={drag}
+          onPress={() => handleSubroutinePress(item)}
+        >
+          <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+          <View style={{ paddingLeft: 20 }}>
+            <Text style={styles.subroutineName}>{item.name}</Text>
+            {/* Use the numeric value for the duration */}
+            <Text style={styles.subroutineDuration}>
+              {formatTime(durationInMinutes * 60)} {/* Convert to seconds for the timer */}
+            </Text>
+          </View>
+        </Pressable>
+      );
+    } else {
+      console.error(`Invalid duration format for subroutine: ${item.duration}`);
+      return null;
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -199,7 +226,6 @@ const RoutineDetails = ({ route }) => {
             keyExtractor={(item, index) => `subroutine-${index}`}
             onDragEnd={handleDragEnd}
             activationDistance={20}
-            
             />
             {loading && (
               <View style={styles.loadingOverlay}>

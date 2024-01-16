@@ -15,8 +15,16 @@ import { TimerPickerModal } from "react-native-timer-picker";
 import { Divider, Icon, ToggleButton } from "react-native-paper";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
-import { calculateTotalDuration, calculateTotalSubroutines } from '../config/utilities';
-import { saveRoutinesToStorage, fetchRoutinesFromStorage, saveSubroutinesToStorage, fetchSubroutinesFromStorage } from "../config/dbHelper";
+import {
+  calculateTotalDuration,
+  calculateTotalSubroutines,
+} from "../config/utilities";
+import {
+  saveRoutinesToStorage,
+  fetchRoutinesFromStorage,
+  saveSubroutinesToStorage,
+  fetchSubroutinesFromStorage,
+} from "../config/dbHelper";
 
 const RoutineOps = ({ route, navigation }) => {
   const [routineName, setRoutineName] = useState("");
@@ -32,7 +40,9 @@ const RoutineOps = ({ route, navigation }) => {
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
-  const totalSubroutines = subroutines ? calculateTotalSubroutines(subroutines) : 0;
+  const totalSubroutines = subroutines
+    ? calculateTotalSubroutines(subroutines)
+    : 0;
 
   //alarm/ time stuff
   const [selectedTime, setSelectedTime] = useState(new Date());
@@ -80,61 +90,65 @@ const RoutineOps = ({ route, navigation }) => {
     const editRoutine = routines.find(
       (routine) => routine.id === editRoutineId
     );
-  
+
     if (editRoutine) {
       setRoutineId(editRoutine.id);
       setRoutineName(editRoutine.name);
-  
+
       // Initialize selectedDays properly from the routine data
       setSelectedDays(editRoutine.selectedDays);
-  
-      setSubroutines(Array.isArray(editRoutine.subroutines) ? editRoutine.subroutines : []);
+
+      setSubroutines(
+        Array.isArray(editRoutine.subroutines) ? editRoutine.subroutines : []
+      );
     }
   };
-  
 
   const saveRoutine = async () => {
     const newRoutine = {
       id: routineId || new Date().getTime().toString(),
       name: routineName.trim(),
-      subroutines: subroutines || [],  // Add this check
+      subroutines: subroutines || [], // Add this check
       selectedTime: selectedTime.getTime(), // Convert to timestamp
       selectedDays: selectedDays,
-      totalDuration: calculateTotalDuration(subroutines || [])  // Add this check
-    };   
-  
+      totalDuration: calculateTotalDuration(subroutines || []), // Add this check
+    };
+
     const routines = await fetchRoutinesFromStorage();
     const updatedRoutines = routineId
       ? routines.map((routine) =>
           routine.id === routineId ? newRoutine : routine
         )
       : [...routines, newRoutine];
-  
+
     await saveRoutinesToStorage(updatedRoutines);
     navigation.navigate("RoutineDetails", { routine: newRoutine });
   };
-  
+
   const addSubroutine = () => {
     if (subroutineName && subroutineDuration !== null) {
-      const newSubroutine = { name: subroutineName.trim(), duration: subroutineDuration };
+      const formattedDuration =
+        typeof subroutineDuration === "number"
+          ? formatDuration(subroutineDuration)
+          : subroutineDuration;
+      const newSubroutine = {
+        name: subroutineName.trim(),
+        duration: formattedDuration,
+      };
       setSubroutines([...subroutines, newSubroutine]);
       setSubroutineName("");
       setSubroutineDuration(null);
     }
     closeModal();
   };
-  
-  
-  const handleSetSubDuration = (pickedDuration) => {
-    const hours =
-      pickedDuration.hours > 0 ? `${pickedDuration.hours} hours` : "";
-    const minutes =
-      pickedDuration.minutes > 0 ? `${pickedDuration.minutes} minutes` : "";
-    const seconds =
-      pickedDuration.seconds > 0 ? `${pickedDuration.seconds} seconds` : "";
 
-    const formattedDuration = `${hours} ${minutes} ${seconds}`.trim();
-    setSubroutineDuration(formattedDuration);
+  const formatDuration = (duration) => {
+    return `${duration} minutes`;
+  };
+
+  const handleSetSubDuration = (pickedDuration) => {
+    const totalMinutes = pickedDuration.hours * 60 + pickedDuration.minutes;
+    setSubroutineDuration(totalMinutes); // Save the duration as minutes
     setSubroutineTimerVisible(false);
   };
 
@@ -145,8 +159,8 @@ const RoutineOps = ({ route, navigation }) => {
 
   const calculateTotalDurationValue = () => {
     return calculateTotalDuration(subroutines);
-  };  
-  
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -189,11 +203,20 @@ const RoutineOps = ({ route, navigation }) => {
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Icon source="alarm-check" color="#000" size={24} />
-              <Text style={[styles.inputLabel, { paddingVertical: 5, paddingLeft: 10 },]}>Routine Time</Text>
+              <Text
+                style={[
+                  styles.inputLabel,
+                  { paddingVertical: 5, paddingLeft: 10 },
+                ]}
+              >
+                Routine Time
+              </Text>
             </View>
             <View style={styles.detailsContainer}>
               <TouchableOpacity onPress={showTimePicker}>
-                <Text style={styles.alarmText}>{moment(selectedTime).format("LT")} </Text>
+                <Text style={styles.alarmText}>
+                  {moment(selectedTime).format("LT")}{" "}
+                </Text>
               </TouchableOpacity>
               {/* TimePickerModal for setting routine time */}
               <DateTimePickerModal
@@ -232,12 +255,26 @@ const RoutineOps = ({ route, navigation }) => {
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Icon source="timer-outline" color="#000" size={24} />
-              <Text style={[styles.inputLabel, { paddingVertical: 5, paddingLeft: 10 },]}>Routine Duration</Text>
+              <Text
+                style={[
+                  styles.inputLabel,
+                  { paddingVertical: 5, paddingLeft: 10 },
+                ]}
+              >
+                Routine Duration
+              </Text>
             </View>
             <View style={styles.detailsContainer}>
-            <Text style={{ color: '#fff', paddingVertical: 15, fontSize: 16, fontWeight: 'bold'}}>
-            {calculateTotalDurationValue()}
-            </Text>
+              <Text
+                style={{
+                  color: "#fff",
+                  paddingVertical: 15,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+              >
+                {calculateTotalDurationValue()}
+              </Text>
             </View>
             <View
               style={{
@@ -309,21 +346,21 @@ const RoutineOps = ({ route, navigation }) => {
                     onChangeText={(text) => setSubroutineName(text)}
                   />
                 </View>
-
                 <Text style={styles.inputLabel}>Subroutine Duration</Text>
-                <View style={[styles.durationContainer]}>
-                  <Icon source="timer-outline" color="#fff" size={26} />
-                  <TouchableOpacity
-                    activeOpacity={0}
-                    onPress={() => setSubroutineTimerVisible(true)}
-                  >
+                <TouchableOpacity
+                  activeOpacity={0}
+                  onPress={() => setSubroutineTimerVisible(true)}
+                >
+                  <View style={[styles.durationContainer]}>
+                    <Icon source="timer-outline" color="#fff" size={26} />
                     <Text
                       style={[styles.text, { paddingLeft: 10, color: "#fff" }]}
                     >
-                      {subroutineDuration || "Set Duration"}
+                      {" "}
+                      {subroutineDuration || "Set Duration"}{" "}
                     </Text>
-                  </TouchableOpacity>
-                </View>
+                  </View>
+                </TouchableOpacity>
                 <View style={styles.modalButtonContainer}>
                   <Pressable style={styles.modalButton} onPress={addSubroutine}>
                     <Text style={styles.modalButtonText}>Done</Text>
@@ -339,6 +376,7 @@ const RoutineOps = ({ route, navigation }) => {
                   onConfirm={handleSetSubDuration}
                   modalTitle="Sub Routine Duration"
                   onCancel={() => setSubroutineTimerVisible(false)}
+                  hideSeconds={true}
                   closeOnOverlayPress
                   modalProps={{
                     overlayOpacity: 0.7,
@@ -472,23 +510,24 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     marginTop: 5,
-  }, 
+  },
   daysContainer: {
     marginBottom: 20,
   },
   toggleButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#000',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#000",
   },
-  toggleButton: { // Inactive button color
+  toggleButton: {
+    // Inactive button color
     borderRadius: 50,
     margin: 5,
     elevation: 10,
-    backgroundColor: '#2e2e2e',
+    backgroundColor: "#2e2e2e",
   },
   activeToggleButton: {
-    backgroundColor: '#fff', // Active button color
+    backgroundColor: "#fff", // Active button color
     elevation: 10,
   },
   dayIcon: {

@@ -969,3 +969,83 @@ const styles = StyleSheet.create({
 });
 
 export default RoutineDetails;
+
+///////////////////////////////
+// SubroutineTimer.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+
+const SubroutineTimer = ({ navigation, route }) => {
+  const { subroutine } = route.params;
+  const [timer, setTimer] = useState(subroutine.duration);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    let interval;
+
+    if (isActive) {
+      interval = setInterval(() => {
+        if (timer > 0) {
+          setTimer((prevTimer) => prevTimer - 1);
+        } else {
+          // Timer completed, you can add logic here
+          setIsActive(false);
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isActive, timer]);
+
+  const handleStart = () => {
+    setIsActive(true);
+  };
+
+  const handlePause = () => {
+    setIsActive(false);
+  };
+
+  const handleSkip = () => {
+    // Add logic to handle skipping the current subroutine
+    setIsActive(false);
+    setTimer(0); // Set timer to 0 for simplicity
+  };
+
+  const handleComplete = () => {
+    // Add logic to handle completing the current subroutine
+    setIsActive(false);
+    setTimer(0); // Set timer to 0 for simplicity
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.timer}>{timer} seconds</Text>
+      <View style={styles.buttonContainer}>
+        <Button title="Start" onPress={handleStart} />
+        <Button title="Pause" onPress={handlePause} />
+        <Button title="Skip" onPress={handleSkip} />
+        <Button title="Complete" onPress={handleComplete} />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timer: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+});
+
+export default SubroutineTimer;
