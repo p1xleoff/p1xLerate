@@ -12,7 +12,7 @@ import {
 import { ProgressBar, Icon } from 'react-native-paper';
 
 const Subroutine = ({ navigation, route }) => {
-  const { subroutine, routine } = route.params;
+  const { subroutine, routine, toggleCompletionId   } = route.params;
 
   const parseDuration = (duration) => {
     if (typeof duration === 'string') {
@@ -27,6 +27,7 @@ const Subroutine = ({ navigation, route }) => {
 
   const [timer, setTimer] = useState(parseDuration(subroutine.duration));
   const [isActive, setIsActive] = useState(false);
+  const onToggleCompletion = global.toggleCompletionFunctions?.[toggleCompletionId];
   
   useEffect(() => {
     let interval;
@@ -84,6 +85,7 @@ const Subroutine = ({ navigation, route }) => {
   const handleComplete = () => {
     setIsActive(false);
     setTimer(0);
+    onToggleCompletion?.();
     navigation.navigate('RoutineDetails', { routine: routine });
   };
 

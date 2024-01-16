@@ -149,8 +149,17 @@ const RoutineDetails = ({ route }) => {
   };
 
   const handleSubroutinePress = (subroutine) => {
-    // console.log('Navigating to Subroutine:', subroutine);
-    navigation.navigate('Subroutine', { subroutine });
+    const toggleCompletionId = Math.random().toString(36).substring(7);
+    navigation.navigate('Subroutine', {
+      subroutine,
+      toggleCompletionId,
+    });
+
+    // Save the function in a global object for later retrieval
+    global.toggleCompletionFunctions = {
+      ...global.toggleCompletionFunctions,
+      [toggleCompletionId]: () => handleToggleCompletion(subroutine),
+    };
   };
 
   const formatTime = (time) => {
@@ -326,13 +335,22 @@ const renderItem = ({ item, index, drag, isActive }) => {
               },
               {
                 onPress: () => handleEditRoutine(),
+                icon: 'plus',
+                label: 'Add/Edit Subroutines',
+                labelStyle: { color: '#000', fontWeight: 'bold' },
+                color: '#000',
+                style: { backgroundColor: '#fff' },
+                size: 1,
+              },
+              {
+                onPress: () => handleEditRoutine(),
                 icon: 'pencil',
                 label: 'Edit Routine',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
-              },
+              },              
             ]}
             onStateChange={({ open }) => setFabOpen(open)}
           />
@@ -358,9 +376,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: 'bold',
     letterSpacing: 0.8,
-    backgroundColor: '#fff',
-    elevation: 5,
-    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
   },
