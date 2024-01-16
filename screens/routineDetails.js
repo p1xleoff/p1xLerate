@@ -1,9 +1,32 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Alert, Pressable, FlatList } from 'react-native';
-import { Icon, FAB, Portal, ToggleButton, ActivityIndicator } from 'react-native-paper';
-import { useNavigation, useIsFocused, useFocusEffect } from '@react-navigation/native';
-import { fetchRoutinesFromStorage, saveRoutinesToStorage } from '../config/dbHelper';
-import { calculateTotalDuration, calculateTotalSubroutines } from '../config/utilities';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Pressable,
+  FlatList,
+} from 'react-native';
+import {
+  Icon,
+  FAB,
+  Portal,
+  ToggleButton,
+  ActivityIndicator,
+} from 'react-native-paper';
+import {
+  useNavigation,
+  useIsFocused,
+  useFocusEffect,
+} from '@react-navigation/native';
+import {
+  fetchRoutinesFromStorage,
+  saveRoutinesToStorage,
+} from '../config/dbHelper';
+import {
+  calculateTotalDuration,
+  calculateTotalSubroutines,
+} from '../config/utilities';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import moment from 'moment';
 
@@ -21,16 +44,20 @@ const RoutineDetails = ({ route }) => {
   const selectedDays = routine.selectedDays;
 
   const [loading, setLoading] = useState(false);
-  
+
   const totalSubroutines = calculateTotalSubroutines(routine.subroutines);
+  const [completedSubroutines, setCompletedSubroutines] = useState([]);
 
   useEffect(() => {
     const updateStorage = async () => {
-      await saveRoutineToStorage({ ...routine, subroutines: routine.subroutines });
+      await saveRoutineToStorage({
+        ...routine,
+        subroutines: routine.subroutines,
+      });
     };
     updateStorage();
   }, [routine.subroutines]);
-  
+
   const updateRoutine = useCallback(
     async (updatedRoutine) => {
       try {
@@ -48,7 +75,7 @@ const RoutineDetails = ({ route }) => {
       // Fetch the updated routine from storage when the screen is focused
       const fetchUpdatedRoutine = async () => {
         const routines = await fetchRoutinesFromStorage();
-        const updatedRoutine = routines.find(r => r.id === routine.id);
+        const updatedRoutine = routines.find((r) => r.id === routine.id);
 
         if (updatedRoutine) {
           setRoutine(updatedRoutine);
@@ -125,57 +152,83 @@ const RoutineDetails = ({ route }) => {
     // console.log('Navigating to Subroutine:', subroutine);
     navigation.navigate('Subroutine', { subroutine });
   };
-  
+
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(
+      2,
+      '0'
+    )}`;
   };
 
-  const renderItem = ({ item, index, drag, isActive }) => {
-    // Extract numeric value from duration string (assuming it's in the format "X minutes")
-    const durationMatch = item.duration.match(/(\d+)/);
+  const handleToggleCompletion = (subroutine) => {
+    //console.log('Toggle Completion - Subroutine:', subroutine);
   
-    if (durationMatch) {
-      const durationInMinutes = parseInt(durationMatch[0], 10);
+    const updatedSubroutines = routine.subroutines.map((s, index) =>
+      s === subroutine
+        ? { ...s, completed: !s.completed }
+        : s
+    );
   
-      return (
-<Pressable
-  android_ripple={{ color: '#525252' }}
-  style={{
-    ...styles.subroutineContainer,
-    backgroundColor: isActive ? 'gray' : '#000',
-    borderColor: isActive ? '#1f1f1f' : 'transparent',
-    borderWidth: isActive ? 1 : 0,
-    flexDirection: 'row', // Ensure a horizontal layout
-    justifyContent: 'space-between', // Align content at the ends
-  }}
-  onLongPress={drag}
-  onPress={() => handleSubroutinePress(item)}
->
-  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
-    <View style={{ paddingLeft: 20 }}>
-      <Text style={styles.subroutineName}>{item.name}</Text>
-      {/* Use the numeric value for the duration */}
-      <Text style={styles.subroutineDuration}>
-        {formatTime(durationInMinutes * 60)} {/* Convert to seconds for the timer */}
-      </Text>
-    </View>
-  </View>
-  {/* Right side content */}
-  <Pressable>
-    <Icon source="circle-outline" color="#fff" size={24} />
-  </Pressable>
-</Pressable>
-
-      );
-    } else {
-      console.error(`Invalid duration format for subroutine: ${item.duration}`);
-      return null;
-    }
+    const updatedRoutine = {
+      ...routine,
+      subroutines: updatedSubroutines,
+    };
+  
+    //console.log('Toggle Completion - Updated Routine:', updatedRoutine);
+  
+    updateRoutine(updatedRoutine);
   };
   
+const renderItem = ({ item, index, drag, isActive }) => {
+  const durationMatch = item.duration.match(/(\d+)/);
+
+  if (durationMatch) {
+    const durationInMinutes = parseInt(durationMatch[0], 10);
+    const isCompleted = item.completed;
+
+    return (
+      <Pressable
+        android_ripple={{ color: '#525252' }}
+        style={{
+          ...styles.subroutineContainer,
+          backgroundColor: isCompleted ? '#4CAF50' : '#000',
+          borderColor: isActive ? '#1f1f1f' : 'transparent',
+          borderWidth: isActive ? 1 : 0,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+        onLongPress={drag}
+        onPress={() => handleSubroutinePress(item)}
+      >
+        {/* Left side content */}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+          <View style={{ paddingLeft: 20 }}>
+            <Text style={styles.subroutineName}>{item.name}</Text>
+            <Text style={styles.subroutineDuration}>
+              {formatTime(durationInMinutes * 60)}
+            </Text>
+          </View>
+        </View>
+        {/* Right side content */}
+        <Pressable onPress={() => handleToggleCompletion(item)}>
+          <Icon
+            source={isCompleted ? 'progress-check' : 'circle-outline'}
+            color="#fff"
+            size={24}
+          />
+        </Pressable>
+      </Pressable>
+    );
+  } else {
+    console.error(`Invalid duration format for subroutine: ${item.duration}`);
+    return null;
+  }
+};
+
+
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -188,14 +241,18 @@ const RoutineDetails = ({ route }) => {
               <Icon source="alarm" color="#000" size={24} />
               <Text style={styles.descriptionText}>Alarm</Text>
             </View>
-            <Text style={styles.timeText}>{moment(selectedTime).format("LT")}</Text>
+            <Text style={styles.timeText}>
+              {moment(selectedTime).format('LT')}
+            </Text>
           </View>
           <View style={styles.routineHeaders}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon source="timer-outline" color="#000" size={24} />
               <Text style={styles.descriptionText}>Duration</Text>
             </View>
-            <Text style={styles.timeText}>{calculateRoutineTotalDuration()}</Text>
+            <Text style={styles.timeText}>
+              {calculateRoutineTotalDuration()}
+            </Text>
           </View>
 
           <View>
@@ -214,7 +271,7 @@ const RoutineDetails = ({ route }) => {
                     </Text>
                   )}
                   value={selectedDays[day]}
-                  onPress={() => { }}
+                  onPress={() => {}}
                   style={[
                     styles.toggleButton,
                     selectedDays[day] && styles.activeToggleButton,
@@ -227,7 +284,9 @@ const RoutineDetails = ({ route }) => {
           </View>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.subroutineHeader}>Subroutines ({totalSubroutines})</Text>
+          <Text style={styles.subroutineHeader}>
+            Subroutines ({totalSubroutines})
+          </Text>
           <DraggableFlatList
             data={routine.subroutines}
             showsVerticalScrollIndicator={false}
@@ -235,12 +294,12 @@ const RoutineDetails = ({ route }) => {
             keyExtractor={(item, index) => `subroutine-${index}`}
             onDragEnd={handleDragEnd}
             activationDistance={20}
-            />
-            {loading && (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color="#000" />
-              </View>
-            )}
+          />
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#000" />
+            </View>
+          )}
         </View>
       </View>
 
@@ -299,6 +358,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: 'bold',
     letterSpacing: 0.8,
+    backgroundColor: '#fff',
+    elevation: 5,
+    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
   },
@@ -393,7 +455,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontWeight: 'bold',
-    fontSize: 18
+    fontSize: 18,
   },
   loadingOverlay: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
