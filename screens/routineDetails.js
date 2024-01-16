@@ -140,26 +140,35 @@ const RoutineDetails = ({ route }) => {
       const durationInMinutes = parseInt(durationMatch[0], 10);
   
       return (
-        <Pressable
-          android_ripple={{color: '#525252'}}
-          style={{
-            ...styles.subroutineContainer,
-            backgroundColor: isActive ? 'gray' : '#000',
-            borderColor: isActive ? '#1f1f1f' : 'transparent',
-            borderWidth: isActive ? 1 : 0,
-          }}
-          onLongPress={drag}
-          onPress={() => handleSubroutinePress(item)}
-        >
-          <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
-          <View style={{ paddingLeft: 20 }}>
-            <Text style={styles.subroutineName}>{item.name}</Text>
-            {/* Use the numeric value for the duration */}
-            <Text style={styles.subroutineDuration}>
-              {formatTime(durationInMinutes * 60)} {/* Convert to seconds for the timer */}
-            </Text>
-          </View>
-        </Pressable>
+<Pressable
+  android_ripple={{ color: '#525252' }}
+  style={{
+    ...styles.subroutineContainer,
+    backgroundColor: isActive ? 'gray' : '#000',
+    borderColor: isActive ? '#1f1f1f' : 'transparent',
+    borderWidth: isActive ? 1 : 0,
+    flexDirection: 'row', // Ensure a horizontal layout
+    justifyContent: 'space-between', // Align content at the ends
+  }}
+  onLongPress={drag}
+  onPress={() => handleSubroutinePress(item)}
+>
+  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+    <View style={{ paddingLeft: 20 }}>
+      <Text style={styles.subroutineName}>{item.name}</Text>
+      {/* Use the numeric value for the duration */}
+      <Text style={styles.subroutineDuration}>
+        {formatTime(durationInMinutes * 60)} {/* Convert to seconds for the timer */}
+      </Text>
+    </View>
+  </View>
+  {/* Right side content */}
+  <Pressable>
+    <Icon source="circle-outline" color="#fff" size={24} />
+  </Pressable>
+</Pressable>
+
       );
     } else {
       console.error(`Invalid duration format for subroutine: ${item.duration}`);
@@ -290,9 +299,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: 'bold',
     letterSpacing: 0.8,
-    backgroundColor: '#fff',
-    elevation: 5,
-    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
   },
