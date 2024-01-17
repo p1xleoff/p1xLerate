@@ -326,7 +326,7 @@ const renderItem = ({ item, index, drag, isActive }) => {
             actions={[
               {
                 onPress: () => handleDeleteRoutine(),
-                icon: 'delete',
+                icon: 'delete-outline',
                 label: 'Delete Routine',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
                 color: '#000',
@@ -335,7 +335,7 @@ const renderItem = ({ item, index, drag, isActive }) => {
               },
               {
                 onPress: () => handleEditRoutine(),
-                icon: 'plus',
+                icon: 'pencil-plus-outline',
                 label: 'Add/Edit Subroutines',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
                 color: '#000',
@@ -344,7 +344,7 @@ const renderItem = ({ item, index, drag, isActive }) => {
               },
               {
                 onPress: () => handleEditRoutine(),
-                icon: 'pencil',
+                icon: 'pencil-outline',
                 label: 'Edit Routine',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
                 color: '#000',

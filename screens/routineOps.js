@@ -208,17 +208,20 @@ const RoutineOps = ({ route, navigation }) => {
                 style={[
                   styles.inputLabel,
                   { paddingVertical: 5, paddingLeft: 10 },
-                ]}
-              >
-                Routine Time
+                ]}>
+                Alarm
               </Text>
             </View>
             <View style={styles.detailsContainer}>
-              <TouchableOpacity onPress={showTimePicker}>
+            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+              <Pressable onPress={showTimePicker} style={styles.alarmContainer}>
+                <Icon source="clock-time-three-outline" color="#000" size={24} />
                 <Text style={styles.alarmText}>
                   {moment(selectedTime).format("LT")}{" "}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
+              <Text style={styles.alarmText}>Alarm</Text>
+              </View>
               {/* TimePickerModal for setting routine time */}
               <DateTimePickerModal
                 isVisible={timePickerVisible}
@@ -505,12 +508,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#1a1a1a",
     elevation: 5,
   },
+  alarmContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#fff',
+    marginVertical: 10,
+    borderRadius: 5,
+    padding: 10,
+    elevation: 5
+  },
   alarmText: {
-    paddingVertical: 15,
+    marginLeft: 5,
     fontSize: 16,
     color: "#fff",
     fontWeight: "bold",
-    marginTop: 5,
+    color: '#000'
   },
   daysContainer: {
     marginBottom: 20,
