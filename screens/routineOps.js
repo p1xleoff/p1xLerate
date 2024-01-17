@@ -13,7 +13,7 @@ import {
    
 } from "react-native";
 import { TimerPickerModal } from "react-native-timer-picker";
-import { Divider, Icon, ToggleButton, Switch } from "react-native-paper";
+import { Divider, Icon, ToggleButton, Snackbar } from "react-native-paper";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import {
@@ -40,6 +40,8 @@ const RoutineOps = ({ route, navigation }) => {
   const [subroutineTimerVisible, setSubroutineTimerVisible] = useState(false);
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     route.params?.notificationsEnabled || false
   );  
@@ -167,6 +169,13 @@ const RoutineOps = ({ route, navigation }) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  const showSnackbar = () => {
+    setSnackbarVisible(true);
+    setTimeout(() => {
+      setSnackbarVisible(false);
+    }, 2000); // Adjust the duration as needed
+  };
+
   const calculateTotalDurationValue = () => {
     return calculateTotalDuration(subroutines);
   };
@@ -230,11 +239,16 @@ const RoutineOps = ({ route, navigation }) => {
                 </Text>
               </Pressable>
               <Text style={styles.alarmText}>Alarm</Text>
-              <Switch
-    value={notificationsEnabled}
-    onValueChange={(value) => setNotificationsEnabled(value)}
-    style={{ marginLeft: "auto" }}
-  />
+              <Pressable
+            onPress={() => {setNotificationsEnabled(!notificationsEnabled); showSnackbar();}} 
+            style={{backgroundColor: '#fff', borderRadius: 50, padding: 7, elevation: 10, alignSelf: "center"}}
+          >
+            <Icon
+              source={notificationsEnabled ? "bell-outline" : "bell-off-outline"}
+              color="#000"
+              size={24}
+            />
+          </Pressable>
               </View>
               {/* TimePickerModal for setting routine time */}
               <DateTimePickerModal
@@ -416,6 +430,17 @@ const RoutineOps = ({ route, navigation }) => {
       <TouchableOpacity style={styles.button} onPress={saveRoutine}>
         <Text style={styles.buttonText}>SAVE ROUTINE</Text>
       </TouchableOpacity>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={1500}
+        action={{
+          label: "OK",
+          onPress: () => setSnackbarVisible(false),
+        }}
+      >
+        <Text style={{color: '#fff'}}>Notifications {notificationsEnabled ? "enabled" : "disabled"}</Text>
+      </Snackbar>
     </View>
   );
 };
