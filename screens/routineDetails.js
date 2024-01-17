@@ -104,9 +104,13 @@ const RoutineDetails = ({ route }) => {
   };
 
   const handleEditRoutine = () => {
-    navigation.navigate('RoutineOps', { routineId: routine.id });
+    navigation.navigate('RoutineOps', {
+      routineId: routine.id,
+      notificationsEnabled: routine.notificationsEnabled,
+    });
   };
-
+  
+  
   useEffect(() => {
     setFabVisible(true); // Reset FAB visibility when the component mounts
   }, [isFocused]);

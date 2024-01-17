@@ -10,9 +10,10 @@ import {
   StyleSheet,
   Pressable,
   StatusBar,
+   
 } from "react-native";
 import { TimerPickerModal } from "react-native-timer-picker";
-import { Divider, Icon, ToggleButton } from "react-native-paper";
+import { Divider, Icon, ToggleButton, Switch } from "react-native-paper";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import {
@@ -39,6 +40,9 @@ const RoutineOps = ({ route, navigation }) => {
   const [subroutineTimerVisible, setSubroutineTimerVisible] = useState(false);
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    route.params?.notificationsEnabled || false
+  );  
 
   const totalSubroutines = subroutines
     ? calculateTotalSubroutines(subroutines)
@@ -102,6 +106,7 @@ const RoutineOps = ({ route, navigation }) => {
         Array.isArray(editRoutine.subroutines) ? editRoutine.subroutines : []
       );
     }
+    setNotificationsEnabled(notificationsEnabled);
   };
 
   const saveRoutine = async () => {
@@ -112,6 +117,7 @@ const RoutineOps = ({ route, navigation }) => {
       selectedTime: selectedTime.getTime(), // Convert to timestamp
       selectedDays: selectedDays,
       totalDuration: calculateTotalDuration(subroutines || []),
+      notificationsEnabled: notificationsEnabled,
     };
 
     const routines = await fetchRoutinesFromStorage();
@@ -221,6 +227,11 @@ const RoutineOps = ({ route, navigation }) => {
                 </Text>
               </Pressable>
               <Text style={styles.alarmText}>Alarm</Text>
+              <Switch
+    value={notificationsEnabled}
+    onValueChange={(value) => setNotificationsEnabled(value)}
+    style={{ marginLeft: "auto" }}
+  />
               </View>
               {/* TimePickerModal for setting routine time */}
               <DateTimePickerModal
