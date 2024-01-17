@@ -13,6 +13,7 @@ import {
   Portal,
   ToggleButton,
   ActivityIndicator,
+  Switch 
 } from 'react-native-paper';
 import {
   useNavigation,
@@ -29,6 +30,7 @@ import {
 } from '../config/utilities';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import moment from 'moment';
+import Toast from 'react-native-toast-message';
 
 const RoutineDetails = ({ route }) => {
   const { routine: initialRoutine } = route.params;
@@ -48,6 +50,10 @@ const RoutineDetails = ({ route }) => {
   const totalSubroutines = calculateTotalSubroutines(routine.subroutines);
   const [completedSubroutines, setCompletedSubroutines] = useState([]);
 
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    initialRoutine.notificationsEnabled || false
+  );
+  
   useEffect(() => {
     const updateStorage = async () => {
       await saveRoutineToStorage({
@@ -109,7 +115,37 @@ const RoutineDetails = ({ route }) => {
       notificationsEnabled: routine.notificationsEnabled,
     });
   };
+
+  //sync notifications to routineOps
+  useFocusEffect(
+    React.useCallback(() => {
+      // Fetch the updated routine from storage when the screen is focused
+      const fetchUpdatedRoutine = async () => {
+        const routines = await fetchRoutinesFromStorage();
+        const updatedRoutine = routines.find((r) => r.id === routine.id);
   
+        if (updatedRoutine) {
+          setRoutine(updatedRoutine);
+          setNotificationsEnabled(updatedRoutine.notificationsEnabled || false);
+        }
+      };
+  
+      fetchUpdatedRoutine();
+    }, [routine.id]) // Re-run effect when routine.id changes
+  );
+
+  const handleToggleNotifications = async () => {
+    const updatedRoutine = { ...routine, notificationsEnabled: !notificationsEnabled };
+    updateRoutine(updatedRoutine);
+    setNotificationsEnabled(!notificationsEnabled);
+
+    // Show a toast message
+    Toast.show({
+      type: 'info',
+      position: 'bottom',
+      text1: `Notifications ${!notificationsEnabled ? 'enabled' : 'disabled'}`,
+    });
+  };
   
   useEffect(() => {
     setFabVisible(true); // Reset FAB visibility when the component mounts
@@ -248,7 +284,14 @@ const renderItem = ({ item, index, drag, isActive }) => {
         {/* <View style={[styles.detailsContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
         </View> */}
         <View style={styles.detailsContainer}>
-          <Text style={styles.header}>{routine.name}</Text>
+          
+          <View style={styles.routineHeaders}>
+            <Text style={styles.header}>{routine.name}</Text>
+          <Pressable onPress={handleToggleNotifications}>
+            <Icon source={notificationsEnabled ? 'bell-outline' : 'bell-off-outline'} color="#000" size={24} />
+          </Pressable>
+          </View>
+          
           <View style={styles.routineHeaders}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon source="alarm" color="#000" size={24} />
