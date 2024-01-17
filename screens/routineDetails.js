@@ -13,7 +13,7 @@ import {
   Portal,
   ToggleButton,
   ActivityIndicator,
-  Switch 
+  Snackbar,
 } from 'react-native-paper';
 import {
   useNavigation,
@@ -30,7 +30,6 @@ import {
 } from '../config/utilities';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import moment from 'moment';
-import Toast from 'react-native-toast-message';
 
 const RoutineDetails = ({ route }) => {
   const { routine: initialRoutine } = route.params;
@@ -53,7 +52,10 @@ const RoutineDetails = ({ route }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     initialRoutine.notificationsEnabled || false
   );
-  
+
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
   useEffect(() => {
     const updateStorage = async () => {
       await saveRoutineToStorage({
@@ -123,30 +125,34 @@ const RoutineDetails = ({ route }) => {
       const fetchUpdatedRoutine = async () => {
         const routines = await fetchRoutinesFromStorage();
         const updatedRoutine = routines.find((r) => r.id === routine.id);
-  
+
         if (updatedRoutine) {
           setRoutine(updatedRoutine);
           setNotificationsEnabled(updatedRoutine.notificationsEnabled || false);
         }
       };
-  
+
       fetchUpdatedRoutine();
     }, [routine.id]) // Re-run effect when routine.id changes
   );
 
   const handleToggleNotifications = async () => {
-    const updatedRoutine = { ...routine, notificationsEnabled: !notificationsEnabled };
+    const updatedRoutine = {
+      ...routine,
+      notificationsEnabled: !notificationsEnabled,
+    };
     updateRoutine(updatedRoutine);
     setNotificationsEnabled(!notificationsEnabled);
 
-    // Show a toast message
-    Toast.show({
-      type: 'info',
-      position: 'bottom',
-      text1: `Notifications ${!notificationsEnabled ? 'enabled' : 'disabled'}`,
-    });
+    // Set the snackbar message
+    setSnackbarMessage(
+      `Notifications ${!notificationsEnabled ? 'enabled' : 'disabled'}`
+    );
+
+    // Show the snackbar
+    setSnackbarVisible(true);
   };
-  
+
   useEffect(() => {
     setFabVisible(true); // Reset FAB visibility when the component mounts
   }, [isFocused]);
@@ -213,70 +219,67 @@ const RoutineDetails = ({ route }) => {
 
   const handleToggleCompletion = (subroutine) => {
     //console.log('Toggle Completion - Subroutine:', subroutine);
-  
+
     const updatedSubroutines = routine.subroutines.map((s, index) =>
-      s === subroutine
-        ? { ...s, completed: !s.completed }
-        : s
+      s === subroutine ? { ...s, completed: !s.completed } : s
     );
-  
+
     const updatedRoutine = {
       ...routine,
       subroutines: updatedSubroutines,
     };
-  
+
     //console.log('Toggle Completion - Updated Routine:', updatedRoutine);
-  
+
     updateRoutine(updatedRoutine);
   };
-  
-const renderItem = ({ item, index, drag, isActive }) => {
-  const durationMatch = item.duration.match(/(\d+)/);
 
-  if (durationMatch) {
-    const durationInMinutes = parseInt(durationMatch[0], 10);
-    const isCompleted = item.completed;
+  const renderItem = ({ item, index, drag, isActive }) => {
+    const durationMatch = item.duration.match(/(\d+)/);
 
-    return (
-      <Pressable
-        android_ripple={{ color: '#525252' }}
-        style={{
-          ...styles.subroutineContainer,
-          backgroundColor: isCompleted ? '#4CAF50' : '#000',
-          borderColor: isActive ? '#1f1f1f' : 'transparent',
-          borderWidth: isActive ? 1 : 0,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}
-        onLongPress={drag}
-        onPress={() => handleSubroutinePress(item)}
-      >
-        {/* Left side content */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
-          <View style={{ paddingLeft: 20 }}>
-            <Text style={styles.subroutineName}>{item.name}</Text>
-            <Text style={styles.subroutineDuration}>
-              {formatTime(durationInMinutes * 60)}
-            </Text>
+    if (durationMatch) {
+      const durationInMinutes = parseInt(durationMatch[0], 10);
+      const isCompleted = item.completed;
+
+      return (
+        <Pressable
+          android_ripple={{ color: '#525252' }}
+          style={{
+            ...styles.subroutineContainer,
+            backgroundColor: isCompleted ? '#4CAF50' : '#000',
+            borderColor: isActive ? '#1f1f1f' : 'transparent',
+            borderWidth: isActive ? 1 : 0,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+          onLongPress={drag}
+          onPress={() => handleSubroutinePress(item)}
+        >
+          {/* Left side content */}
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Icon source="hexagon-multiple-outline" color="#fff" size={24} />
+            <View style={{ paddingLeft: 20 }}>
+              <Text style={styles.subroutineName}>{item.name}</Text>
+              <Text style={styles.subroutineDuration}>
+                {formatTime(durationInMinutes * 60)}
+              </Text>
+            </View>
           </View>
-        </View>
-        {/* Right side content */}
-        <Pressable onPress={() => handleToggleCompletion(item)}>
-          <Icon
-            source={isCompleted ? 'progress-check' : 'circle-outline'}
-            color="#fff"
-            size={24}
-          />
+          {/* Right side content */}
+          <Pressable onPress={() => handleToggleCompletion(item)}>
+            <Icon
+              source={isCompleted ? 'progress-check' : 'circle-outline'}
+              color="#fff"
+              size={24}
+            />
+          </Pressable>
         </Pressable>
-      </Pressable>
-    );
-  } else {
-    console.error(`Invalid duration format for subroutine: ${item.duration}`);
-    return null;
-  }
-};
-
+      );
+    } else {
+      console.error(`Invalid duration format for subroutine: ${item.duration}`);
+      return null;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -284,14 +287,19 @@ const renderItem = ({ item, index, drag, isActive }) => {
         {/* <View style={[styles.detailsContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
         </View> */}
         <View style={styles.detailsContainer}>
-          
           <View style={styles.routineHeaders}>
             <Text style={styles.header}>{routine.name}</Text>
-          <Pressable onPress={handleToggleNotifications}>
-            <Icon source={notificationsEnabled ? 'bell-outline' : 'bell-off-outline'} color="#000" size={24} />
-          </Pressable>
+            <Pressable onPress={handleToggleNotifications} style={{backgroundColor: '#000', borderRadius: 50, padding: 7, elevation: 10}}>
+              <Icon
+                source={
+                  notificationsEnabled ? 'bell-outline' : 'bell-off-outline'
+                }
+                color="#fff"
+                size={24}
+              />
+            </Pressable>
           </View>
-          
+
           <View style={styles.routineHeaders}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon source="alarm" color="#000" size={24} />
@@ -397,11 +405,22 @@ const renderItem = ({ item, index, drag, isActive }) => {
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
-              },              
+              },
             ]}
             onStateChange={({ open }) => setFabOpen(open)}
           />
         )}
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={1100}
+          action={{
+            label: 'OK',
+            onPress: () => setSnackbarVisible(false),
+          }}
+        >
+          {snackbarMessage}
+        </Snackbar>
       </Portal>
     </View>
   );

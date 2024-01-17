@@ -79,14 +79,14 @@ const Subroutine = ({ navigation, route }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('RoutineDetails', { routine: routine });
+    navigation.goBack();
   };
 
   const handleComplete = () => {
     setIsActive(false);
     setTimer(0);
     onToggleCompletion?.();
-    navigation.navigate('RoutineDetails', { routine: routine });
+    navigation.goBack();
   };
 
   const calculateProgress = () => {

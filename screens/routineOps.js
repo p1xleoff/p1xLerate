@@ -94,20 +94,23 @@ const RoutineOps = ({ route, navigation }) => {
     const editRoutine = routines.find(
       (routine) => routine.id === editRoutineId
     );
-
+  
     if (editRoutine) {
       setRoutineId(editRoutine.id);
       setRoutineName(editRoutine.name);
-
+  
       // Initialize selectedDays properly from the routine data
       setSelectedDays(editRoutine.selectedDays);
-
+  
       setSubroutines(
         Array.isArray(editRoutine.subroutines) ? editRoutine.subroutines : []
       );
+  
+      // Set the selected time to the stored time value
+      setSelectedTime(new Date(editRoutine.selectedTime));
     }
-    setNotificationsEnabled(notificationsEnabled);
-  };
+    setNotificationsEnabled(editRoutine?.notificationsEnabled || false);
+  };  
 
   const saveRoutine = async () => {
     const newRoutine = {
