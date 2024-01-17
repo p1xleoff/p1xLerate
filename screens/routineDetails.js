@@ -390,8 +390,8 @@ const RoutineDetails = ({ route }) => {
               },
               {
                 onPress: () => handleEditRoutine(),
-                icon: 'pencil-plus-outline',
-                label: 'Add/Edit Subroutines',
+                icon: 'cogs',
+                label: 'Manage Subroutines',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
                 color: '#000',
                 style: { backgroundColor: '#fff' },

@@ -154,6 +154,12 @@ const RoutineOps = ({ route, navigation }) => {
     closeModal();
   };    
 
+  const deleteSubroutine = (index) => {
+    const updatedSubroutines = [...subroutines];
+    updatedSubroutines.splice(index, 1);
+    setSubroutines(updatedSubroutines);
+  };
+
   const formatDuration = (duration) => {
     return `${duration} minutes`;
   };
@@ -349,6 +355,12 @@ const RoutineOps = ({ route, navigation }) => {
                     {subroutine.duration}
                   </Text>
                 </View>
+                <TouchableOpacity
+      onPress={() => deleteSubroutine(index)}
+      style={{ marginLeft: "auto" }}
+    >
+      <Icon source="delete-outline" color="#fff" size={24} />
+    </TouchableOpacity>
               </View>
             ))}
             {/* Modal for adding subroutine */}
