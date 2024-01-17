@@ -1,11 +1,24 @@
 // Home.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { Divider, Icon } from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
 
 const Home = () => {
   const navigation = useNavigation();
+
+  //notification permissiion
+  const requestNotificationPermission = async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== 'granted') {
+      await Notifications.requestPermissionsAsync();
+    }
+  };
+  
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   return (
     <View style={styles.container}>
