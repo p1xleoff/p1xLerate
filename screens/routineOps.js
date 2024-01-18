@@ -132,7 +132,7 @@ const RoutineOps = ({ route, navigation }) => {
       : [...routines, newRoutine];
 
     await saveRoutinesToStorage(updatedRoutines);
-    navigation.navigate('RoutineDetails', { routine: newRoutine });
+    navigation.navigate('RoutineList', { routine: newRoutine });
   };
 
   const addSubroutine = () => {

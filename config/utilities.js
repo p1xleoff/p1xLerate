@@ -56,8 +56,8 @@ export const calculateRoutineStatus = (routine) => {
   );
 
   return completedSubroutines.length === routine.subroutines.length
-  ? <Icon source="check" color="#fff" size={24} />
-  : <Icon source="timer-sand" color="#fff" size={24} />;
+  ? <Icon source="check-circle-outline" color="#000" size={24} />
+  : <Icon source="timer-sand" color="#000" size={24} />;
 };
 
 export const calculateNextOccurrence = (routine) => {

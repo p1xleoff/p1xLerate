@@ -300,31 +300,18 @@ const calculateRoutineStatus = () => {
   const today = moment().format('dddd').toLowerCase();
   const selectedDays = routine.selectedDays;
 
-  if (selectedDays[today]) {
-    // If routine is scheduled for today
+  // Create an array of selected days sorted by their order in a week
+  const sortedDays = Object.keys(selectedDays).sort((a, b) => moment().isoWeekday(a) - moment().isoWeekday(b));
+
+  // Find the first selected day that is equal to or greater than the current day
+  const nextDay = sortedDays.find((day) => selectedDays[day] && moment().isoWeekday(day) >= moment().isoWeekday(today));
+
+  if (nextDay) {
     const completionStatus = isRoutineComplete() ? 'Completed Today' : 'Not Completed Today';
-    
-    // Find the next occurrence of the routine on selected days
-    const nextOccurrence = moment().isoWeekday(Object.keys(selectedDays).find((day) => selectedDays[day]));
-
-    while (nextOccurrence.isBefore(moment(), 'day')) {
-      nextOccurrence.add(7, 'days'); // Move to the next week
-    }
-
-    const nextOccurrenceWithTime = moment(nextOccurrence).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
-
-    return `${completionStatus} \nNext: ${nextOccurrenceWithTime.format('dddd, LT')}`;
+    const nextOccurrenceWithTime = moment().isoWeekday(nextDay).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
+    return `${completionStatus}\nNext: ${nextOccurrenceWithTime.format('dddd, LT')}`;
   } else {
-    // If routine is not scheduled for today, show the next occurrence
-    const nextOccurrence = moment().isoWeekday(Object.keys(selectedDays).find((day) => selectedDays[day]));
-
-    while (nextOccurrence.isBefore(moment(), 'day')) {
-      nextOccurrence.add(7, 'days'); // Move to the next week
-    }
-
-    const nextOccurrenceWithTime = moment(nextOccurrence).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
-
-    return `Next: ${nextOccurrenceWithTime.format('dddd, LT')}`;
+    return `No Days Selected`;
   }
 };
 

@@ -38,15 +38,16 @@ const RoutineList = ({ navigation, route }) => {
       <FlatList
         data={routines}
         keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
         renderItem = {({ item }) => (
           <View>
           <TouchableOpacity style={styles.listItem} onPress={() => navigation.navigate('RoutineDetails', { routine: item })} >
             <View>
             <Text style={styles.text}>{item.name}</Text>
-            <Text style={{ color: '#fff' }}>{calculateNextOccurrence(item)}</Text>
+            <Text style={{ color: '#000' }}>{calculateNextOccurrence(item)}</Text>
             </View>
         <View style={styles.routineStatus}>
-          <Text style={{ color: '#fff' }}>{calculateRoutineStatus(item)}</Text>
+          <Text style={{ color: '#000' }}>{calculateRoutineStatus(item)}</Text>
         </View>
         </TouchableOpacity>
         </View>)}
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   innerContainer: {
-    marginHorizontal: "5%",
+    marginHorizontal: "2%",
   },
   header: {
     fontSize: 28,
@@ -78,17 +79,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     letterSpacing: 1.2,
-    color: '#fff'
+    color: '#000'
   },
   listItem:  {
     flexDirection: 'row',
-    backgroundColor: '#000',
-    elevation: 10,
+    backgroundColor: '#fff',
+    elevation: 5,
     padding: 20,
     paddingVertical: 10,
     borderRadius: 7,
     justifyContent: 'space-between',
-    marginVertical: 10,
+    margin: 10,
   },
   addTaskButton: {
     position: "absolute",
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 60,
     height: 60,
-    backgroundColor: "black",
+    backgroundColor: "#000",
     borderRadius: 100,
     elevation: 10
   },
