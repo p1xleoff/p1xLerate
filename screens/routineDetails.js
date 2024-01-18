@@ -161,6 +161,15 @@ const RoutineDetails = ({ route }) => {
     updateRoutine(updatedRoutine);
   };
 
+  const countCompletedSubroutines = () => {
+    // Filter out the completed subroutines
+    const completedSubroutines = routine.subroutines.filter(
+      (subroutine) => subroutine.completed
+    );
+    // Return the count of incomplete subroutines
+    return completedSubroutines.length;
+  };
+
   const handleDeleteRoutine = async () => {
     Alert.alert(
       'Confirm Deletion',
@@ -348,9 +357,14 @@ const RoutineDetails = ({ route }) => {
           </View>
         </View>
         <View style={{ flex: 1 }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={styles.subroutineHeader}>
             Subroutines ({totalSubroutines})
           </Text>
+          <Text style={styles.subroutineHeader}>
+            Progress: {countCompletedSubroutines()}/{totalSubroutines}
+          </Text>
+          </View>
           <DraggableFlatList
             data={routine.subroutines}
             showsVerticalScrollIndicator={false}

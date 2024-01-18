@@ -7,7 +7,7 @@ import {
   StatusBar,
   Pressable,
   useWindowDimensions,
-  Dimensions
+  Alert
 } from 'react-native';
 import { ProgressBar, Icon } from 'react-native-paper';
 
@@ -25,6 +25,7 @@ const Subroutine = ({ navigation, route }) => {
     }
   };
 
+  const initialTimer = parseDuration(subroutine.duration);
   const [timer, setTimer] = useState(parseDuration(subroutine.duration));
   const [isActive, setIsActive] = useState(false);
   const onToggleCompletion = global.toggleCompletionFunctions?.[toggleCompletionId];
@@ -39,6 +40,21 @@ const Subroutine = ({ navigation, route }) => {
         } else {
           setIsActive(false);
           clearInterval(interval);
+                    // Timer reached 0, prompt the user to mark the subroutine as complete
+                    Alert.alert(
+                      'Subroutine Complete',
+                      'Do you want to mark this subroutine as complete?',
+                      [
+                        {
+                          text: 'Cancel',
+                          style: 'cancel',
+                        },
+                        {
+                          text: 'Complete',
+                          onPress: () => handleComplete(),
+                        },
+                      ]
+                    );
         }
       }, 1000);
     }
@@ -48,6 +64,11 @@ const Subroutine = ({ navigation, route }) => {
     };
   }, [isActive, timer]);
 
+  const handleReset = () => {
+    setTimer(initialTimer);
+    setIsActive(false);
+  };
+  
   // Add this useEffect to handle the conversion of the duration string
   useEffect(() => {
     setTimer(parseDuration(subroutine.duration));
@@ -118,6 +139,9 @@ const Subroutine = ({ navigation, route }) => {
           <Text style={styles.subName}>{subroutine.name}</Text>
         </View>
       <View style={styles.innerContainer}>
+        <Pressable onPress={handleReset} style={{alignSelf: 'flex-end', paddingRight: 15}}>
+            <Icon source="restore" color="#fff" size={38} style={styles.addIcon} />
+          </Pressable>
       <View style={styles.timerContainer}>
         <Text style={styles.timer}>{formatTime(timer)}</Text>
       </View>
@@ -125,6 +149,17 @@ const Subroutine = ({ navigation, route }) => {
       <ProgressBar progress={calculateProgress()} color='#fff' style={styles.progressBar}/>
       </View>
       <View style={styles.controlCenter}>
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.playButton} onPress={handleSkip}>
+            <Icon
+              source="skip-next"
+              color="#fff"
+              size={40}
+              style={styles.addIcon}
+              />
+          </Pressable>
+          <Text style={styles.buttonText}>Skip</Text>
+        </View>
         <View style={styles.buttonContainer}>
           <Pressable style={styles.playButton} onPress={isActive ? handlePause : handleStart} >
             {isActive ? (
@@ -137,7 +172,7 @@ const Subroutine = ({ navigation, route }) => {
         </View>
         <View style={styles.buttonContainer}>
           <Pressable
-            style={[styles.playButton, { width: 80, height: 80 }]}
+            style={styles.playButton}
             onPress={handleComplete}
           >
             <Icon
@@ -148,17 +183,6 @@ const Subroutine = ({ navigation, route }) => {
               />
           </Pressable>
           <Text style={styles.buttonText}>Complete</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Pressable style={styles.playButton} onPress={handleSkip}>
-            <Icon
-              source="skip-next"
-              color="#fff"
-              size={40}
-              style={styles.addIcon}
-              />
-          </Pressable>
-          <Text style={styles.buttonText}>Skip</Text>
         </View>
               </View>
       </View>
