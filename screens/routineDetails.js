@@ -30,6 +30,7 @@ import {
 } from '../config/utilities';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import moment from 'moment';
+import { resetRoutineStatus } from '../config/utilities';
 
 const RoutineDetails = ({ route }) => {
   const { routine: initialRoutine } = route.params;
@@ -323,7 +324,7 @@ const calculateRoutineStatus = () => {
 
     const nextOccurrenceWithTime = moment(nextOccurrence).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
 
-    return `Next occurrence: ${nextOccurrenceWithTime.format('dddd, LT')}`;
+    return `Next: ${nextOccurrenceWithTime.format('dddd, LT')}`;
   }
 };
 
@@ -344,6 +345,13 @@ const toggleAllSubroutines = () => {
 const allSubroutinesCompleted = () => {
   return routine.subroutines.every((subroutine) => subroutine.completed);
 };
+
+useEffect(() => {
+  // Call the function to reset routine status at midnight
+  const updatedRoutine = resetRoutineStatus(routine);
+  // Update your state or storage with the updatedRoutine
+  setRoutine(updatedRoutine);
+}, [routine.id]);
 
   return (
     <View style={styles.container}>

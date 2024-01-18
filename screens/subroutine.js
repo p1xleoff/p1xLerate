@@ -140,7 +140,7 @@ const Subroutine = ({ navigation, route }) => {
         </View>
       <View style={styles.innerContainer}>
         <Pressable onPress={handleReset} style={{alignSelf: 'flex-end', paddingRight: 15}}>
-            <Icon source="restore" color="#fff" size={38} style={styles.addIcon} />
+            <Icon source="replay" color="#fff" size={38} style={styles.addIcon} />
           </Pressable>
       <View style={styles.timerContainer}>
         <Text style={styles.timer}>{formatTime(timer)}</Text>

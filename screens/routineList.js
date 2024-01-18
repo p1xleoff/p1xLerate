@@ -5,8 +5,9 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import { Divider, Icon } from "react-native-paper";
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchRoutinesFromStorage } from '../config/dbHelper';
+import { calculateRoutineStatus, calculateNextOccurrence, resetRoutineStatus  } from '../config/utilities';
 
-const RoutineList = ({ navigation }) => {
+const RoutineList = ({ navigation, route }) => {
   const [routines, setRoutines] = useState([]);
 
   useEffect(() => {
@@ -23,6 +24,13 @@ const RoutineList = ({ navigation }) => {
     useCallback(() => { loadRoutines(); }, []));
   useEffect(() => { loadRoutines();}, []);
 
+  useEffect(() => {
+    // Call the function to reset routine status at midnight for each routine
+    const updatedRoutines = routines.map(routine => resetRoutineStatus(routine));
+    // Update your state or storage with the updatedRoutines
+    setRoutines(updatedRoutines);
+  }, []);
+
   return (
     <View style={styles.container}>
         <View style={styles.innerContainer}>
@@ -32,11 +40,14 @@ const RoutineList = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem = {({ item }) => (
           <View>
-          <TouchableOpacity
-         style={styles.listItem}
-          onPress={() => navigation.navigate('RoutineDetails', { routine: item })}
-        >
+          <TouchableOpacity style={styles.listItem} onPress={() => navigation.navigate('RoutineDetails', { routine: item })} >
+            <View>
             <Text style={styles.text}>{item.name}</Text>
+            <Text style={{ color: '#fff' }}>{calculateNextOccurrence(item)}</Text>
+            </View>
+        <View style={styles.routineStatus}>
+          <Text style={{ color: '#fff' }}>{calculateRoutineStatus(item)}</Text>
+        </View>
         </TouchableOpacity>
         </View>)}
       />
@@ -64,7 +75,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   text: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     letterSpacing: 1.2,
     color: '#fff'
@@ -74,6 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     elevation: 10,
     padding: 20,
+    paddingVertical: 10,
     borderRadius: 7,
     justifyContent: 'space-between',
     marginVertical: 10,
@@ -90,5 +102,8 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     elevation: 10
   },
+  routineStatus:  {
+    justifyContent: 'center'
+  }
 });
 export default RoutineList;
