@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useCallback} from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { Divider, Icon } from "react-native-paper";
+import { Divider, Icon, Menu  } from "react-native-paper";
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchRoutinesFromStorage } from '../config/dbHelper';
 import { calculateRoutineStatus, calculateNextOccurrence, resetRoutineStatus  } from '../config/utilities';
+import DraggableFlatList from 'react-native-draggable-flatlist';
 
 const RoutineList = ({ navigation, route }) => {
   const [routines, setRoutines] = useState([]);
@@ -35,10 +36,10 @@ const RoutineList = ({ navigation, route }) => {
     <View style={styles.container}>
         <View style={styles.innerContainer}>
       <View>
-      <FlatList
+      <DraggableFlatList
         data={routines}
         keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
+        
         renderItem = {({ item }) => (
           <View>
           <TouchableOpacity style={styles.listItem} onPress={() => navigation.navigate('RoutineDetails', { routine: item })} >
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   innerContainer: {
-    marginHorizontal: "2%",
+    //marginHorizontal: "2%",
   },
   header: {
     fontSize: 28,
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
     color: '#000'
   },
   listItem:  {
+    marginHorizontal: 20,
     flexDirection: 'row',
     backgroundColor: '#fff',
     elevation: 5,
