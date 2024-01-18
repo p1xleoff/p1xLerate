@@ -290,6 +290,61 @@ const RoutineDetails = ({ route }) => {
     }
   };
 
+  // check if all subroutines are completed
+  const isRoutineComplete = () => {
+    return routine.subroutines.every((subroutine) => subroutine.completed);
+  };
+//calculate routine status | check next occurenece of routine | show day and time
+const calculateRoutineStatus = () => {
+  const today = moment().format('dddd').toLowerCase();
+  const selectedDays = routine.selectedDays;
+
+  if (selectedDays[today]) {
+    // If routine is scheduled for today
+    const completionStatus = isRoutineComplete() ? 'Completed Today' : 'Not Completed Today';
+    
+    // Find the next occurrence of the routine on selected days
+    const nextOccurrence = moment().isoWeekday(Object.keys(selectedDays).find((day) => selectedDays[day]));
+
+    while (nextOccurrence.isBefore(moment(), 'day')) {
+      nextOccurrence.add(7, 'days'); // Move to the next week
+    }
+
+    const nextOccurrenceWithTime = moment(nextOccurrence).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
+
+    return `${completionStatus} \nNext: ${nextOccurrenceWithTime.format('dddd, LT')}`;
+  } else {
+    // If routine is not scheduled for today, show the next occurrence
+    const nextOccurrence = moment().isoWeekday(Object.keys(selectedDays).find((day) => selectedDays[day]));
+
+    while (nextOccurrence.isBefore(moment(), 'day')) {
+      nextOccurrence.add(7, 'days'); // Move to the next week
+    }
+
+    const nextOccurrenceWithTime = moment(nextOccurrence).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
+
+    return `Next occurrence: ${nextOccurrenceWithTime.format('dddd, LT')}`;
+  }
+};
+
+const toggleAllSubroutines = () => {
+  const updatedSubroutines = routine.subroutines.map((subroutine) => ({
+    ...subroutine,
+    completed: !allSubroutinesCompleted(),
+  }));
+
+  const updatedRoutine = {
+    ...routine,
+    subroutines: updatedSubroutines,
+  };
+
+  updateRoutine(updatedRoutine);
+};
+
+const allSubroutinesCompleted = () => {
+  return routine.subroutines.every((subroutine) => subroutine.completed);
+};
+
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -327,7 +382,6 @@ const RoutineDetails = ({ route }) => {
               {calculateRoutineTotalDuration()}
             </Text>
           </View>
-
           <View>
             <View style={styles.daysContainer}>
               {Object.keys(selectedDays).map((day) => (
@@ -355,15 +409,14 @@ const RoutineDetails = ({ route }) => {
               ))}
             </View>
           </View>
+          <Text style={styles.routineStatus}>{calculateRoutineStatus()}</Text>
         </View>
         <View style={{ flex: 1 }}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={styles.subroutineHeader}>
             Subroutines ({totalSubroutines})
           </Text>
-          <Text style={styles.subroutineHeader}>
-            Progress: {countCompletedSubroutines()}/{totalSubroutines}
-          </Text>
+          <Text style={styles.subroutineHeader}>Progress: {countCompletedSubroutines()}/{totalSubroutines}</Text>
           </View>
           <DraggableFlatList
             data={routine.subroutines}
@@ -416,6 +469,15 @@ const RoutineDetails = ({ route }) => {
                 icon: 'pencil-outline',
                 label: 'Edit Routine',
                 labelStyle: { color: '#000', fontWeight: 'bold' },
+                color: '#000',
+                style: { backgroundColor: '#fff' },
+                size: 1,
+              },              
+              {
+                onPress: () => toggleAllSubroutines(),
+                icon: 'progress-check',
+                label: 'Toggle All Subroutines\nas Complete/Incomplete',
+                labelStyle: { color: '#000', fontWeight: 'bold', textAlign: 'right' },
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
@@ -557,6 +619,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  routineStatus:  {
+    fontSize: 16,
+    paddingTop: 10,
+    fontWeight: '600',
+  }
 });
 
 export default RoutineDetails;
