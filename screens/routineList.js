@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    // backgroundColor: 'red',
+    backgroundColor: 'rgba(0, 0, 0, 0.47)',
     borderRadius: 10,
     justifyContent: 'flex-end'
   },
