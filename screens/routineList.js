@@ -205,7 +205,7 @@ const RoutineList = ({ navigation, route, routine }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#101010',
   },
   innerContainer: {
     //marginHorizontal: "2%",
