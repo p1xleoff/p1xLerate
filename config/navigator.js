@@ -12,6 +12,7 @@ import RoutineList from '../screens/routineList';
 import RoutineOps from '../screens/routineOps';
 import RoutineDetails from '../screens/routineDetails';
 import Clear from '../screens/clear';
+import Subroutine from '../screens/subroutine';
 
 const Stack = createStackNavigator();
 
@@ -27,10 +28,10 @@ export const Navigator = () => {
       <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }}/>
       <Stack.Screen name="TaskOps" component={TaskOps} options={{ title: 'Add a task' }}/>
       <Stack.Screen name="RoutineOps" component={RoutineOps} />
+      <Stack.Screen name="Subroutine" component={Subroutine} options={{title:'',headerStyle: {backgroundColor: '#000',},headerTintColor: '#fff'}} />
       <Stack.Screen name="Clear" component={Clear} />
       <Stack.Screen name="TaskDetails" component={TaskDetails} options={{ title: 'Task Details' }} />
       <Stack.Screen name="ListManager" component={ListManager} options={{ title: 'Saved Lists' }} />
-
     </Stack.Navigator>
     </PaperProvider>
   );
