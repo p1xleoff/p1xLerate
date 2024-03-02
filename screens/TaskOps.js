@@ -150,6 +150,7 @@ const TaskOps = ({ route, navigation }) => {
           <TextInput
             style={[styles.input, { marginBottom: 20 }]}
             placeholder="What would you like to do?"
+            placeholderTextColor={'#888'}
             value={title}
             selectionColor={"black"}
             activeUnderlineColor="#fff"
@@ -159,6 +160,7 @@ const TaskOps = ({ route, navigation }) => {
           <TextInput
             style={styles.input}
             placeholder="Description"
+            placeholderTextColor={'#888'}
             value={description}
             selectionColor={"black"}
             onChangeText={(text) => setDescription(text)}
@@ -171,10 +173,9 @@ const TaskOps = ({ route, navigation }) => {
         <View style={[styles.detailsContainer, { flexDirection: 'row' }]}>
           <View style={styles.dateTimeContainer}>
             <TouchableOpacity onPress={showDatePicker} style={styles.icon}>
-              <Icon source="calendar-outline" color="#fff" size={35} />
+              <Icon source="calendar-outline" color="#000" size={35} />
             </TouchableOpacity>
             <Text style={styles.selectedDateTime}>{formattedDueDate}</Text>
-
             {/* Date Picker */}
             <DateTimePickerModal
               isVisible={isDatePickerVisible}
@@ -185,9 +186,8 @@ const TaskOps = ({ route, navigation }) => {
           </View>
           <View style={styles.dateTimeContainer}>
             <TouchableOpacity style={styles.icon} onPress={showTimePicker}>
-              <Icon source="clock-time-eight-outline" color="#fff" size={35} />
+              <Icon source="clock-time-eight-outline" color="#000" size={35} />
             </TouchableOpacity>
-
             <DateTimePickerModal
               isVisible={isTimePickerVisible}
               mode="time"
@@ -208,35 +208,38 @@ const TaskOps = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
   },
   innerContainer: {
-    backgroundColor: "#fff",
     padding: 15
   },
   title: {
     fontWeight: "bold",
     paddingLeft: 5,
     marginBottom: 5,
+    color: '#fff'
   },
   input: {
     height: 50,
     fontWeight: "400",
-    paddingLeft: 5,
+    paddingLeft: 10,
     borderRadius: 5,
     backgroundColor: "#fff",
+    elevation: 10,
+    fontWeight: 'bold'
   },
   selectedDateTime: {
     fontSize: 16,
     fontWeight: "bold",
     paddingTop: 10,
+    color: '#fff'
   },
   detailsContainer: {
     paddingVertical: 20,
     paddingHorizontal: 15,
     marginBottom: 25,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: "#101010",
     elevation: 5,
   },
   dateTimeContainer: {
@@ -247,25 +250,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 7,
     borderRadius: 30,
-    backgroundColor: "#000",
+    backgroundColor: "#fff",
     elevation: 5,
   },
   button: {
     position: "absolute",
     bottom: 15,
-    padding: 18,
+    padding: 12,
     borderRadius: 5,
     elevation: 10,
     alignItems: "center",
-    backgroundColor: "#000",
+    backgroundColor: "#fff",
     width: '90%',
     alignSelf: "center"
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: "bold",
-    letterSpacing: 1.5
+    color: '#000',
+    fontSize: 18,
+    fontWeight: '600',
+    letterSpacing: 1
   }
 });
 

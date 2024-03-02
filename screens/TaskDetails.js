@@ -102,25 +102,25 @@ const TaskDetails = ({ route, navigation }) => {
               <Text style={styles.title}>{`${taskDetails.title || "N/A"
                 }`}</Text>
               <View style={styles.taskInfo}>
-                <Icon source="text" color="black" size={24} />
+                <Icon source="text" color="#fff" size={24} />
                 <Text style={styles.taskText}>{`${taskDetails.description || "N/A"
                   }`}</Text>
               </View>
               <View style={styles.taskInfo}>
-                <Icon source="calendar" color="black" size={24} />
+                <Icon source="calendar" color="#fff" size={24} />
                 <Text style={styles.taskText}>
                   {`${taskDetails.dueDate ? formatDate(taskDetails.dueDate) : "N/A"}`}
                 </Text>
               </View>
               <View style={styles.taskInfo}>
-                <Icon source="clock-outline" color="black" size={24} />
+                <Icon source="clock-outline" color="#fff" size={24} />
                 <Text style={styles.taskText}>
                   {`${taskDetails.dueTime || "N/A"}`}
                 </Text>
               </View>
 
               <View style={styles.taskInfo}>
-                <Icon source="progress-check" color="black" size={24} />
+                <Icon source="progress-check" color="#fff" size={24} />
                 <Text style={styles.taskText}>{`Completed: ${taskDetails.completed ? "Yes" : "No"
                   }`}</Text>
               </View>
@@ -133,17 +133,17 @@ const TaskDetails = ({ route, navigation }) => {
       {/* Completed Button */}
       <View style={styles.completedButton}>
         <TouchableOpacity style={styles.button} onPress={markAsCompleted}>
-          <Icon source="check" color="#fff" size={28} style={styles.addIcon} />
+          <Icon source="check" color="#000" size={28} style={styles.addIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.editButton}>
         <TouchableOpacity style={styles.button} onPress={editTask}>
-          <Icon source="pencil" color="#fff" size={28} style={styles.addIcon} />
+          <Icon source="pencil" color="#000" size={28} style={styles.addIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.deleteButton}>
         <TouchableOpacity style={styles.button} onPress={deleteTask}>
-          <Icon source="delete-outline" color="#fff" size={28} style={styles.addIcon} />
+          <Icon source="delete-outline" color="#000" size={28} style={styles.addIcon} />
         </TouchableOpacity>
       </View>
     </View>
@@ -153,7 +153,7 @@ const TaskDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
   },
   innerContainer: {
     marginHorizontal: "2%",
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginVertical: 10,
+    color: '#fff'
   },
   taskInfo: {
     flexDirection: "row",
@@ -174,6 +175,7 @@ const styles = StyleSheet.create({
   taskText: {
     fontSize: 18,
     marginLeft: 12,
+    color: '#fff'
   },
   completedButton: {
     position: "absolute",
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 60,
     height: 60,
-    backgroundColor: "black",
+    backgroundColor: "#fff",
     borderRadius: 100,
   },
   addIcon: {

@@ -1,10 +1,22 @@
 // ListManager.js
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, Button, Alert, Modal, StyleSheet, Pressable } from 'react-native';
-import { Divider, Icon } from "react-native-paper";
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+  Button,
+  Alert,
+  Modal,
+  StyleSheet,
+  Pressable,
+} from 'react-native';
+import { Divider, Icon } from 'react-native-paper';
 import { useTasks } from '../config/tasksContext';
 import { AsyncStorage } from 'react-native';
 import { saveListsToStorage, fetchListsFromStorage } from '../config/dbHelper';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const ListManager = ({ navigation }) => {
   const { state, dispatch } = useTasks();
@@ -12,6 +24,7 @@ const ListManager = ({ navigation }) => {
   const [newListTitle, setNewListTitle] = useState('');
   const [editListId, setEditListId] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const fetchLists = async () => {
     const storedLists = await fetchListsFromStorage();
@@ -30,7 +43,24 @@ const ListManager = ({ navigation }) => {
   const handleAddList = () => {
     setEditListId(null);
     setNewListTitle('');
-    setModalVisible(true);
+    openBottomSheet(true);
+  };
+
+  const bottomSheetRef = useRef(null);
+  const snapPoints = ['50%'];
+
+  const openBottomSheet = (routine) => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+      setIsBottomSheetOpen(true);
+    }
+  };
+
+  const closeBottomSheet = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.close();
+      setIsBottomSheetOpen(false);
+    }
   };
 
   const handleModalSubmit = async () => {
@@ -40,11 +70,17 @@ const ListManager = ({ navigation }) => {
         const updatedLists = lists.map((list) =>
           list.id === editListId ? { ...list, name: newListTitle.trim() } : list
         );
-        dispatch({ type: 'EDIT_LIST', payload: { id: editListId, name: newListTitle.trim() } });
+        dispatch({
+          type: 'EDIT_LIST',
+          payload: { id: editListId, name: newListTitle.trim() },
+        });
         await saveListsToStorage(updatedLists);
       } else {
         // Adding a new list
-        const newList = { id: Date.now().toString(), name: newListTitle.trim() };
+        const newList = {
+          id: Date.now().toString(),
+          name: newListTitle.trim(),
+        };
         dispatch({ type: 'ADD_LIST', payload: newList });
         await saveListsToStorage([...lists, newList]);
       }
@@ -55,10 +91,9 @@ const ListManager = ({ navigation }) => {
 
       setNewListTitle(''); // Clear the input field
       setEditListId(null); // Reset edit list ID
-      setModalVisible(false); // Close the modal
+      closeBottomSheet(); // Close the modal
     }
   };
-
 
   const handleDeleteList = async (listId, listName) => {
     Alert.alert(
@@ -75,7 +110,7 @@ const ListManager = ({ navigation }) => {
             dispatch({ type: 'DELETE_LIST', payload: listId });
 
             // Save the updated lists to AsyncStorage
-            const updatedLists = lists.filter(list => list.id !== listId);
+            const updatedLists = lists.filter((list) => list.id !== listId);
             await saveListsToStorage(updatedLists);
 
             setEditListId(null); // Reset edit list ID
@@ -88,9 +123,8 @@ const ListManager = ({ navigation }) => {
   const handleEditList = (listId, listName) => {
     setEditListId(listId);
     setNewListTitle(listName);
-    setModalVisible(true);
+    openBottomSheet();
   };
-
 
   return (
     <View style={styles.container}>
@@ -99,60 +133,83 @@ const ListManager = ({ navigation }) => {
           data={lists}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.listItem} >
+            <View style={styles.listItem}>
               <TouchableOpacity onPress={() => switchList(item.id, item.name)}>
                 <Text style={styles.listName}>{item.name}</Text>
               </TouchableOpacity>
               <View style={styles.listTools}>
-                <TouchableOpacity onPress={() => handleEditList(item.id, item.name)}>
-                  <Icon source="pencil" color='#fff' size={28} />
+                <TouchableOpacity
+                  onPress={() => handleEditList(item.id, item.name)}
+                >
+                  <Icon source="pencil" color="#000" size={28} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDeleteList(item.id, item.name)} style={{ paddingLeft: 10 }}>
-                  <Icon source="delete" color='#fff' size={28} />
+                <TouchableOpacity
+                  onPress={() => handleDeleteList(item.id, item.name)}
+                  style={{ paddingLeft: 10 }}
+                >
+                  <Icon source="delete" color="#000" size={28} />
                 </TouchableOpacity>
               </View>
             </View>
           )}
         />
-
-        {/* Modal for adding/editing a list */}
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          transparent={true}
-          statusBarTranslucent={true}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalTitle}>
-              {/* <Pressable onPress={() => setModalVisible(false)}>
-          <Icon source="close" color='#fff' size={28} />
-          </Pressable> */}
-              <Text style={styles.modalText}>What would you like to call your list?</Text>
-            </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter List Title"
-              value={newListTitle}
-              onChangeText={(text) => setNewListTitle(text)}
-            />
-            <View style={styles.modalButtonContainer}>
-              <Pressable style={styles.modalButton} onPress={handleModalSubmit} >
-                <Text style={styles.modalButtonText}>Done</Text>
-              </Pressable>
-              <Pressable style={styles.modalButton} onPress={() => setModalVisible(false)} >
-                <Text style={styles.modalButtonText}>Cancel</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-
       </View>
       <View style={styles.addTaskButton}>
         <TouchableOpacity style={styles.button} onPress={handleAddList}>
-          <Icon source="plus" color='#fff' size={28} style={styles.addIcon} />
+          <Icon source="plus" color="#000" size={28} style={styles.addIcon} />
         </TouchableOpacity>
       </View>
+
+      {/* bottom sheet overlay backdrop */}
+      {isBottomSheetOpen && (
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={closeBottomSheet}
+          activeOpacity={1}
+        />
+      )}
+
+      {/* Bottom Sheet */}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        enableOverDrag={false}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        handleIndicatorStyle={{ backgroundColor: '#fff' }}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0)', paddingHorizontal: 20 }}
+        backgroundStyle={{ backgroundColor: '#101010', paddingHorizontal: 20 }}
+        onChange={() => {}}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalTitle}>
+            {/* <Pressable onPress={() => setModalVisible(false)}>
+          <Icon source="close" color='#fff' size={28} />
+          </Pressable> */}
+            <Text style={styles.modalText}>
+              What would you like to call your list?
+            </Text>
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter List Title"
+            value={newListTitle}
+            cursorColor={'#000'}
+            onChangeText={(text) => setNewListTitle(text)}
+          />
+          <View style={styles.modalButtonContainer}>
+            <Pressable style={styles.modalButton} onPress={handleModalSubmit}>
+              <Text style={styles.modalButtonText}>Done</Text>
+            </Pressable>
+            <Pressable
+              style={styles.modalButton}
+              onPress={closeBottomSheet}
+            >
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </BottomSheet>
     </View>
   );
 };
@@ -160,40 +217,45 @@ const ListManager = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#000',
   },
   innerContainer: {
-    marginHorizontal: "2%",
+    marginHorizontal: '2%',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   listItem: {
     flexDirection: 'row',
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     margin: 9,
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     borderRadius: 5,
     elevation: 5,
     paddingHorizontal: 15,
-    paddingVertical: 3
+    paddingVertical: 3,
   },
   listTools: {
     flexDirection: 'row',
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     marginVertical: 10,
   },
   listName: {
     fontSize: 18,
     fontWeight: '500',
-    color: '#fff',
-    width: 220
+    color: '#000',
+    width: 220,
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: '#101010',
     opacity: 0.99,
     padding: 20,
   },
@@ -206,35 +268,37 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 24,
     fontWeight: '500',
-    color: "#fff"
+    color: '#fff',
   },
   input: {
-    height: 60,
+    height: 55,
     width: '100%',
     borderColor: 'white',
     backgroundColor: '#fff',
     borderRadius: 4,
     marginBottom: 20,
     paddingLeft: 10,
+    fontWeight: 'bold',
+    fontSize: 18
   },
   addTaskButton: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 15,
     right: 15,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 60,
     height: 60,
-    backgroundColor: "black",
+    backgroundColor: '#fff',
     borderRadius: 100,
   },
   addIcon: {
     fontSize: 30,
-    color: "#fff",
+    color: '#000',
   },
   modalButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   modalButton: {
     backgroundColor: '#fff',
@@ -244,11 +308,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 4,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   modalButtonText: {
     fontSize: 18,
-    fontWeight: '600'
+    fontWeight: '600',
   },
 });
 

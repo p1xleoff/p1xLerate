@@ -22,21 +22,31 @@ export const Navigator = () => {
   const navigation = useNavigation();
   return (
     <PaperProvider>
-    <Stack.Navigator>
-      <Stack.Screen name="Landing" component={Landing} options={{headerShown: false}}/>
-      <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
-      <Stack.Screen name="Settings" component={Settings} options={{headerShown: false}}/>
-      <Stack.Screen name="RoutineList" component={RoutineList} />
-      <Stack.Screen name="RoutineDetails" component={RoutineDetails} options={{ title: 'Routine Details', headerRight: () => (
-            <IconButton icon="close" iconColor={'#000'} size={32} onPress={() => { navigation.navigate('RoutineList'); }} /> ) }}/>
-      <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }}/>
-      <Stack.Screen name="TaskOps" component={TaskOps} options={{ title: 'Add a task' }}/>
-      <Stack.Screen name="RoutineOps" component={RoutineOps} />
-      <Stack.Screen name="Subroutine" component={Subroutine} options={{title:'',headerStyle: {backgroundColor: '#000',},headerTintColor: '#fff'}} />
-      <Stack.Screen name="Clear" component={Clear} />
-      <Stack.Screen name="TaskDetails" component={TaskDetails} options={{ title: 'Task Details' }} />
-      <Stack.Screen name="ListManager" component={ListManager} options={{ title: 'Saved Lists' }} />
-    </Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#000',
+          },
+          headerTintColor: '#fff',
+          headerLeft: () => (
+            <IconButton icon="arrow-left" iconColor={'#fff'} size={28} onPress={() => navigation.goBack()} />
+          ),
+          headerShadowVisible: false,
+        }}
+      >
+        <Stack.Screen name="Landing" component={Landing} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+        <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
+        <Stack.Screen name="RoutineList" component={RoutineList} />
+        <Stack.Screen name="RoutineDetails" component={RoutineDetails} options={{ title: 'Routine Details' }} />
+        <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }} />
+        <Stack.Screen name="TaskOps" component={TaskOps} options={{ title: 'Add a task' }} />
+        <Stack.Screen name="RoutineOps" component={RoutineOps} />
+        <Stack.Screen name="Subroutine" component={Subroutine} options={{ title: ''}} />
+        <Stack.Screen name="Clear" component={Clear} options={{ headerShown: false }} />
+        <Stack.Screen name="TaskDetails" component={TaskDetails} options={{ title: 'Task Details' }} />
+        <Stack.Screen name="ListManager" component={ListManager} options={{ title: 'Saved Lists' }} />
+      </Stack.Navigator>
     </PaperProvider>
   );
 };

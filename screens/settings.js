@@ -12,23 +12,35 @@ const Settings = () => {
       <View style={styles.innerContainer}>
         <View>
             <View style={styles.floatbutton}>
-                <TouchableOpacity onPress={() => navigation.navigate("Navbar")}>
+                <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
                 <Icon source="chevron-left" color="#000" size={32} />
                 </TouchableOpacity>
             </View>
             <View style={styles.card}>
-                  <Avatar.Icon size={77} icon="console-line" color='#fff' backgroundColor='#000'/>
-                <Text style={[styles.text, {fontSize: 32, marginTop: 10}]}>
+                  <Avatar.Icon size={77} icon="console-line" color='#000' backgroundColor='#fff'/>
+                <Text style={[styles.text, {fontSize: 32, marginTop: 10, color: '#fff'}]}>
                     p1xLe
                 </Text>
             </View>
         </View>
-        <View><TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Clear")}>
+        <View>
+          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Clear")}>
               <Text style={styles.text}>Clear Data</Text>
-              <Icon source="chevron-right" color='#000' size={28} />
+              <Icon source="chevron-right" color='#fff' size={28} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.links}>
+            <View>
+              <Text style={styles.text}>p1xLerate</Text>
+              <Text style={[styles.text, {fontSize: 14}]}>Version 0.1</Text>
+            </View>
+              <Icon source="cheese" color='#fff' size={28} />
           </TouchableOpacity>
         </View>
       </View>
+          <TouchableOpacity style={[{flexDirection: 'row', position: 'absolute', bottom: 10, justifyContent: 'center', alignSelf: 'center'}]}>
+              <Text style={styles.text}>Made by p1xLe with </Text>
+              <Icon source="heart" color='tomato' size={24} />
+          </TouchableOpacity>
     </View>
   );
 };
@@ -50,7 +62,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000'
+    color: '#fff'
   },
   floatbutton:  {
     backgroundColor: '#fff',
@@ -60,21 +72,23 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#101010',
     height: 200,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-
+    marginBottom: 10,
   },
   links:  {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     elevation: 10,
     padding: 15,
     borderRadius: 7,
     justifyContent: 'space-between',
-    marginVertical: 10,
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
+
 export default Settings;

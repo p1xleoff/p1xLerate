@@ -100,7 +100,7 @@ const TaskList = ({ navigation }) => {
             <Text style={styles.title}>{selectedListName}</Text>
             <TouchableOpacity style={styles.listSwitchButton}
              onPress={() => navigation.navigate("ListManager")}>
-              <Icon source="format-list-bulleted" color='black' size={28} />
+              <Icon source="format-list-bulleted" color='#fff' size={28} />
             </TouchableOpacity>
           </View>
           <Divider />
@@ -113,7 +113,7 @@ const TaskList = ({ navigation }) => {
               renderItem={({ item }) => (
                 <View style={styles.tasks}>
                 <TouchableOpacity onPress={() => handleTaskCompletion(item.id)}>
-                <Icon source="circle-outline" color='black' size={24} />
+                <Icon source="circle-outline" color='#fff' size={24} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() =>
@@ -131,11 +131,11 @@ const TaskList = ({ navigation }) => {
           <View style={[styles.listContainer, {marginTop: 20}]}>
           <Divider />
           <View style={styles.titleContainer}>
-            <Text style={{ fontSize: 18, fontWeight: "400"}}>
+            <Text style={{ fontSize: 18, fontWeight: "400", color: '#fff'}}>
               Completed
             </Text>
             <TouchableOpacity onPress={handleDeleteCompletedTasks}>
-              <Icon source="dots-horizontal" color='black' size={28} />
+              <Icon source="delete-outline" color='#fff' size={24} />
             </TouchableOpacity>
             </View>
             <FlatList
@@ -159,7 +159,7 @@ const TaskList = ({ navigation }) => {
         </View>
         <View style={styles.addTaskButton}>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("TaskOps")} >
-            <Icon source="plus" color='#fff' size={28}style={styles.addIcon} />
+            <Icon source="plus" color='#000' size={28}style={styles.addIcon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -170,7 +170,7 @@ const TaskList = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#000'
   },
   innerContainer: {
     marginHorizontal: "5%",
@@ -187,20 +187,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    color: '#fff'
   },
   tasks: {
     padding: 5,
     flexDirection: "row",
-    alignItems: 'center'
+    alignItems: 'center',
   },
   taskName: {
     fontSize: 18,
     marginLeft: 15,
+    color: '#fff'
   },  
   taskNameComp: {
     fontSize: 18,
     marginLeft: 15,
-    color: 'darkgray'
+    color: '#888'
   },
   addTaskButton: {
     position: "absolute",
@@ -210,13 +212,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 60,
     height: 60,
-    backgroundColor: "black",
+    backgroundColor: "#fff",
     borderRadius: 100,
     elevation: 10
   },
   addIcon: {
     fontSize: 30,
-    color: "#fff",
+    color: "#000",
   },
 
 });

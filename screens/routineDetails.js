@@ -256,7 +256,7 @@ const RoutineDetails = ({ route }) => {
           android_ripple={{ color: '#525252' }}
           style={{
             ...styles.subroutineContainer,
-            backgroundColor: isCompleted ? '#4CAF50' : '#000',
+            backgroundColor: isCompleted ? '#4CAF50' : '#ff6347',
             borderColor: isActive ? '#1f1f1f' : 'transparent',
             borderWidth: isActive ? 1 : 0,
             flexDirection: 'row',
@@ -295,50 +295,73 @@ const RoutineDetails = ({ route }) => {
   const isRoutineComplete = () => {
     return routine.subroutines.every((subroutine) => subroutine.completed);
   };
-//calculate routine status | check next occurenece of routine | show day and time
-const calculateRoutineStatus = () => {
-  const today = moment().format('dddd').toLowerCase();
-  const selectedDays = routine.selectedDays;
+  //calculate routine status | check next occurenece of routine | show day and time
+  const calculateRoutineStatus = () => {
+    const today = moment().format('dddd').toLowerCase();
+    const selectedDays = routine.selectedDays;
+  
+    // Create an array of selected days sorted by their order in a week
+    const sortedDays = Object.keys(selectedDays).sort(
+      (a, b) => moment().isoWeekday(a) - moment().isoWeekday(b)
+    );
+  
+    // Find the first selected day that is equal to or greater than the current day
+    const nextDay = sortedDays.find(
+      (day) =>
+        selectedDays[day] &&
+        moment().isoWeekday(day) >= moment().isoWeekday(today)
+    );
+  
+    if (nextDay) {
+      const completionStatus = isRoutineComplete()
+        ? <Text style={{color: 'lightgreen'}}>Completed Today</Text>
+        : <Text style={{color: 'coral'}}>Not Completed Today</Text>
+      const nextOccurrenceWithTime = moment()
+        .isoWeekday(nextDay)
+        .set('hour', moment(routine.selectedTime).hour())
+        .set('minute', moment(routine.selectedTime).minute());
+        
+      // Style for selected days
+      const selectedDaysStyle = isRoutineComplete()
+        ? { color: '#9f9f9f' }
+        : { color: '#9f9f9f' };
+      
+      return (
+        <Text style={selectedDaysStyle}>
+          {completionStatus}{'\n'}
+          Next: {nextOccurrenceWithTime.format('dddd, LT')}
+        </Text>
+      );
+    } else {
+      return <Text style={{color: '#9f9f9f'}}>No Days Selected</Text>;
+    }
+  };
+  
 
-  // Create an array of selected days sorted by their order in a week
-  const sortedDays = Object.keys(selectedDays).sort((a, b) => moment().isoWeekday(a) - moment().isoWeekday(b));
+  const toggleAllSubroutines = () => {
+    const updatedSubroutines = routine.subroutines.map((subroutine) => ({
+      ...subroutine,
+      completed: !allSubroutinesCompleted(),
+    }));
 
-  // Find the first selected day that is equal to or greater than the current day
-  const nextDay = sortedDays.find((day) => selectedDays[day] && moment().isoWeekday(day) >= moment().isoWeekday(today));
+    const updatedRoutine = {
+      ...routine,
+      subroutines: updatedSubroutines,
+    };
 
-  if (nextDay) {
-    const completionStatus = isRoutineComplete() ? 'Completed Today' : 'Not Completed Today';
-    const nextOccurrenceWithTime = moment().isoWeekday(nextDay).set('hour', moment(routine.selectedTime).hour()).set('minute', moment(routine.selectedTime).minute());
-    return `${completionStatus}\nNext: ${nextOccurrenceWithTime.format('dddd, LT')}`;
-  } else {
-    return `No Days Selected`;
-  }
-};
-
-const toggleAllSubroutines = () => {
-  const updatedSubroutines = routine.subroutines.map((subroutine) => ({
-    ...subroutine,
-    completed: !allSubroutinesCompleted(),
-  }));
-
-  const updatedRoutine = {
-    ...routine,
-    subroutines: updatedSubroutines,
+    updateRoutine(updatedRoutine);
   };
 
-  updateRoutine(updatedRoutine);
-};
+  const allSubroutinesCompleted = () => {
+    return routine.subroutines.every((subroutine) => subroutine.completed);
+  };
 
-const allSubroutinesCompleted = () => {
-  return routine.subroutines.every((subroutine) => subroutine.completed);
-};
-
-useEffect(() => {
-  // Call the function to reset routine status at midnight
-  const updatedRoutine = resetRoutineStatus(routine);
-  // Update your state or storage with the updatedRoutine
-  setRoutine(updatedRoutine);
-}, [routine.id]);
+  useEffect(() => {
+    // Call the function to reset routine status at midnight
+    const updatedRoutine = resetRoutineStatus(routine);
+    // Update your state or storage with the updatedRoutine
+    setRoutine(updatedRoutine);
+  }, [routine.id]);
 
   return (
     <View style={styles.container}>
@@ -348,12 +371,20 @@ useEffect(() => {
         <View style={styles.detailsContainer}>
           <View style={styles.routineHeaders}>
             <Text style={styles.header}>{routine.name}</Text>
-            <Pressable onPress={handleToggleNotifications} style={{backgroundColor: '#000', borderRadius: 50, padding: 7, elevation: 10}}>
+            <Pressable
+              onPress={handleToggleNotifications}
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: 50,
+                padding: 7,
+                elevation: 10,
+              }}
+            >
               <Icon
                 source={
                   notificationsEnabled ? 'bell-outline' : 'bell-off-outline'
                 }
-                color="#fff"
+                color="#000"
                 size={24}
               />
             </Pressable>
@@ -361,7 +392,7 @@ useEffect(() => {
 
           <View style={styles.routineHeaders}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon source="alarm" color="#000" size={24} />
+              <Icon source="alarm" color="#fff" size={24} />
               <Text style={styles.descriptionText}>Alarm</Text>
             </View>
             <Text style={styles.timeText}>
@@ -370,7 +401,7 @@ useEffect(() => {
           </View>
           <View style={styles.routineHeaders}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon source="timer-outline" color="#000" size={24} />
+              <Icon source="timer-outline" color="#fff" size={24} />
               <Text style={styles.descriptionText}>Duration</Text>
             </View>
             <Text style={styles.timeText}>
@@ -407,11 +438,15 @@ useEffect(() => {
           <Text style={styles.routineStatus}>{calculateRoutineStatus()}</Text>
         </View>
         <View style={{ flex: 1 }}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={styles.subroutineHeader}>
-            Subroutines ({totalSubroutines})
-          </Text>
-          <Text style={styles.subroutineHeader}>Progress: {countCompletedSubroutines()}/{totalSubroutines}</Text>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+          >
+            <Text style={styles.subroutineHeader}>
+              Subroutines ({totalSubroutines})
+            </Text>
+            <Text style={styles.subroutineHeader}>
+              Progress: {countCompletedSubroutines()}/{totalSubroutines}
+            </Text>
           </View>
           <DraggableFlatList
             data={routine.subroutines}
@@ -423,20 +458,19 @@ useEffect(() => {
           />
           {loading && (
             <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#000" />
+              <ActivityIndicator size="large" color="#fff" backgroundColor='#000'/>
             </View>
           )}
         </View>
       </View>
-
       <Portal>
         {isFocused && isFabVisible && (
           <FAB.Group
             open={isFabOpen}
             visible
             icon={isFabOpen ? 'cheese-off' : 'cheese'}
-            backdropColor={'rgba(222, 222, 222, 0.9)'}
-            color="#fff"
+            backdropColor={'rgba(0, 0, 0, 0.95)'}
+            color="#000"
             fabStyle={styles.fab}
             small={false}
             style={styles.fabItem}
@@ -445,7 +479,7 @@ useEffect(() => {
                 onPress: () => handleDeleteRoutine(),
                 icon: 'delete-outline',
                 label: 'Delete Routine',
-                labelStyle: { color: '#000', fontWeight: 'bold' },
+                labelStyle: { color: '#fff', fontWeight: 'bold', backgroundColor: '#202020', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 3 },
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
@@ -454,7 +488,7 @@ useEffect(() => {
                 onPress: () => handleEditRoutine(),
                 icon: 'cogs',
                 label: 'Manage Subroutines',
-                labelStyle: { color: '#000', fontWeight: 'bold' },
+                labelStyle: { color: '#fff', fontWeight: 'bold', backgroundColor: '#202020', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 3 },
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
@@ -463,16 +497,18 @@ useEffect(() => {
                 onPress: () => handleEditRoutine(),
                 icon: 'pencil-outline',
                 label: 'Edit Routine',
-                labelStyle: { color: '#000', fontWeight: 'bold' },
+                labelStyle: { color: '#fff', fontWeight: 'bold', backgroundColor: '#202020', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 3 },
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
-              },              
+              },
               {
                 onPress: () => toggleAllSubroutines(),
                 icon: 'progress-check',
                 label: 'Toggle All Subroutines\nas Complete/Incomplete',
-                labelStyle: { color: '#000', fontWeight: 'bold', textAlign: 'right' },
+                labelStyle: {
+                  color: '#fff', fontWeight: 'bold', textAlign: 'right', backgroundColor: '#202020', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 3
+                },
                 color: '#000',
                 style: { backgroundColor: '#fff' },
                 size: 1,
@@ -500,7 +536,7 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     paddingHorizontal: 10,
   },
   innerContainer: {
@@ -515,6 +551,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     paddingVertical: 5,
     borderRadius: 5,
+    color: '#fff'
   },
   routineHeaders: {
     flexDirection: 'row',
@@ -526,7 +563,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginVertical: 5,
     borderRadius: 5,
-    backgroundColor: '#fff',
+    backgroundColor: '#101010',
     elevation: 5,
   },
   descriptionText: {
@@ -534,11 +571,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingLeft: 12,
     paddingVertical: 3,
+    color: '#fff'
   },
   subroutineHeader: {
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 20,
+    color: '#fff',
   },
   subroutineContainer: {
     flexDirection: 'row',
@@ -564,7 +603,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   fab: {
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     borderRadius: 40,
     color: '#fff',
     width: 60,
@@ -591,34 +630,35 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     margin: 5,
     elevation: 10,
-    backgroundColor: '#ededed',
+    backgroundColor: '#212121',
   },
   activeToggleButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     elevation: 10,
   },
   dayIcon: {
-    color: '#000',
+    color: '#9e9e9e',
     fontWeight: 'bold',
     fontSize: 18,
   },
   activeDayIcon: {
-    color: '#fff',
+    color: '#000',
   },
   timeText: {
     fontWeight: 'bold',
     fontSize: 18,
+    color: '#fff'
   },
   loadingOverlay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  routineStatus:  {
+  routineStatus: {
     fontSize: 16,
     paddingTop: 10,
     fontWeight: '600',
-  }
+  },
 });
 
 export default RoutineDetails;

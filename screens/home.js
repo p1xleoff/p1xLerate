@@ -23,28 +23,18 @@ const Home = () => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>p1xLerate</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+          <Icon source="cog" color='#fff' size={28} />
+          </TouchableOpacity>
+        </View>
         <View>
-          <Text style={{ fontSize: 22 }}>hello there, <Text style={styles.header}>p1xLe</Text></Text>
+          <Text style={{ fontSize: 22, color: '#fff' }}>hello there, p1xLe</Text>
           <Text style={styles.text}>Lets get some stuff done today!</Text>
         </View>
         <Divider style={{margin: 10}}/>
         <View>
-          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("TaskList")}>
-              <Text style={[styles.text, {color: '#fff'}]}>Check out tasks</Text>
-              <Icon source="chevron-right" color='#fff' size={28} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("RoutineList")}>
-              <Text style={[styles.text, {color: '#fff'}]}>Check out routines</Text>
-              <Icon source="chevron-right" color='#fff' size={28} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Clear")}>
-              <Text style={[styles.text, {color: '#fff'}]}>Clear Data</Text>
-              <Icon source="chevron-right" color='#fff' size={28} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Settings")}>
-              <Text style={[styles.text, {color: '#fff'}]}>Settings</Text>
-              <Icon source="chevron-right" color='#fff' size={28} />
-          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -54,19 +44,34 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     paddingTop: StatusBar.currentHeight+10
   },
   innerContainer: {
     marginHorizontal: "5%",
   },
+  headerContainer:  {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    borderRadius: 7,
+    marginBottom: 10,
+    // paddingHorizontal: 10,
+  },
   header: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
+    color: '#fff',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginVertical: 10,
+    letterSpacing: 1.5
   },
   text: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#fff'
   },
   card: {
     backgroundColor: '#fff',
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
   },
   links:  {
     flexDirection: 'row',
-    backgroundColor: '#000',
+    backgroundColor: '#101010',
     elevation: 10,
     padding: 15,
     borderRadius: 7,
@@ -86,4 +91,5 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
+
 export default Home;

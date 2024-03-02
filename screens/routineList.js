@@ -1,6 +1,6 @@
 // screens/RoutineListScreen.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,12 @@ import {
   Alert,
   StatusBar,
   Pressable,
-
+  TextInput,
+  Button,
 } from 'react-native';
-import { Divider, Icon,  Modal, Portal } from 'react-native-paper';
+import { Icon } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
+import BottomSheet from '@gorhom/bottom-sheet';
 import {
   fetchRoutinesFromStorage,
   saveRoutinesToStorage,
@@ -30,13 +32,14 @@ const RoutineList = ({ navigation, route, routine }) => {
   const [selectedRoutine, setSelectedRoutine] = useState(null);
   const [pinnedRoutineIds, setPinnedRoutineIds] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
-  const showModal = (routine) => {
-    setVisible(true);
-    setSelectedRoutine(routine);
-  };
+  // const showModal = (routine) => {
+  //   setVisible(true);
+  //   setSelectedRoutine(routine);
+  // };
 
-  const hideModal = () => setVisible(false);
+  // const hideModal = () => setVisible(false);
 
   useEffect(() => {
     loadRoutines();
@@ -66,6 +69,24 @@ const RoutineList = ({ navigation, route, routine }) => {
     setRoutines(updatedRoutines);
   }, []);
 
+  const bottomSheetRef = useRef(null);
+  const snapPoints = ['40%'];
+
+  const openBottomSheet = (routine) => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+      setIsBottomSheetOpen(true);
+      setSelectedRoutine(routine);
+    }
+  };
+
+  const closeBottomSheet = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.close();
+      setIsBottomSheetOpen(false);
+    }
+  };
+
   const handleDeleteRoutine = async () => {
     const confirmDelete = async () => {
       try {
@@ -76,7 +97,7 @@ const RoutineList = ({ navigation, route, routine }) => {
         await saveRoutinesToStorage(updatedRoutines);
         setRoutines(updatedRoutines);
         navigation.navigate('Landing');
-        hideModal();
+        closeBottomSheet();
       } catch (error) {
         console.error('Error deleting routine:', error);
       }
@@ -105,7 +126,7 @@ const RoutineList = ({ navigation, route, routine }) => {
     }
 
     // Close the modal
-    hideModal();
+    closeBottomSheet();
   };
 
   const unpinRoutine = () => {
@@ -113,7 +134,7 @@ const RoutineList = ({ navigation, route, routine }) => {
       setPinnedRoutineIds((prevIds) =>
         prevIds.filter((id) => id !== selectedRoutine.id)
       );
-      hideModal();
+      closeBottomSheet();
     }
   };
 
@@ -138,6 +159,9 @@ const RoutineList = ({ navigation, route, routine }) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
+        <Text style={{color: '#fff', fontSize: 22, marginHorizontal: 20, marginTop: 10,}}>
+          Routines
+        </Text>
         <View>
           <DraggableFlatList
             data={sortRoutines(routines)}
@@ -149,7 +173,7 @@ const RoutineList = ({ navigation, route, routine }) => {
                   onPress={() =>
                     navigation.navigate('RoutineDetails', { routine: item })
                   }
-                  onLongPress={() => showModal(item)}
+                  onLongPress={() => openBottomSheet(item)}
                 >
                   <View>
                     <Text style={styles.text}>{item.name}</Text>
@@ -170,35 +194,53 @@ const RoutineList = ({ navigation, route, routine }) => {
             )}
           />
         </View>
-        <Portal>
-          <Modal visible={visible} 
-          onDismiss={hideModal} onBackdropPress={hideModal} style={styles.modalContainer} >
-            <View style={styles.modalContent}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Text style={{padding: 15, fontSize: 22, fontWeight: 'bold' }}>{selectedRoutine && selectedRoutine.name}</Text>
-              {pinnedRoutineIds.includes(selectedRoutine && selectedRoutine.id) && (
-                      <Icon source="pin-outline" color="#000" size={24} />
-                    )}
-              </View>
-              <Pressable onPress={handleDeleteRoutine} style={styles.button}>
-                <Text style={styles.buttonText}>Delete Routine</Text>
-                </Pressable>
-              <Pressable onPress={pinRoutine} style={styles.button}>
-                <Text style={styles.buttonText}>Pin Routine at the Top</Text>
-                </Pressable>
-              <Pressable onPress={unpinRoutine} style={styles.button}>
-                <Text style={styles.buttonText}>Unpin Routine</Text>
-                </Pressable>
-            </View>
-          </Modal>
-        </Portal>
       </View>
       <View style={styles.addTaskButton}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('RoutineOps')} >
+        <TouchableOpacity onPress={() => navigation.navigate('RoutineOps')}>
           <Icon source="plus" color="#000" size={28} style={styles.addIcon} />
         </TouchableOpacity>
       </View>
+      {/* bottom sheet overlay backdrop */}
+      {isBottomSheetOpen && (
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={closeBottomSheet}
+          activeOpacity={1}
+        />
+      )}
+      
+      {/* Bottom Sheet */}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        enableOverDrag={false}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        handleIndicatorStyle={{ backgroundColor: '#fff' }}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0)', paddingHorizontal: 20 }}
+        backgroundStyle={{ backgroundColor: '#101010', paddingHorizontal: 20 }}
+        onChange={() => {}}
+      >
+        <View style={styles.modalContent}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ padding: 15, fontSize: 22, fontWeight: 'bold', color: '#fff' }}>
+              {selectedRoutine && selectedRoutine.name}
+            </Text>
+            {pinnedRoutineIds.includes(
+              selectedRoutine && selectedRoutine.id
+            ) && <Icon source="pin-outline" color="#000" size={24} />}
+          </View>
+          <Pressable onPress={handleDeleteRoutine} style={styles.button}>
+            <Text style={styles.buttonText}>Delete Routine</Text>
+          </Pressable>
+          <Pressable onPress={pinRoutine} style={styles.button}>
+            <Text style={styles.buttonText}>Pin Routine at the Top</Text>
+          </Pressable>
+          <Pressable onPress={unpinRoutine} style={styles.button}>
+            <Text style={styles.buttonText}>Unpin Routine</Text>
+          </Pressable>
+        </View>
+      </BottomSheet>
     </View>
   );
 };
@@ -210,7 +252,11 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     //marginHorizontal: "2%",
-    top: StatusBar.currentHeight+10,
+    top: StatusBar.currentHeight + 10,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   header: {
     fontSize: 28,
@@ -253,29 +299,28 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.47)',
     borderRadius: 10,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   modalContent: {
     bottom: 0,
     paddingBottom: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#101010',
     alignItems: 'center',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    width: '100%'
+    borderRadius: 10,
+    width: '100%',
   },
   button: {
     paddingVertical: 15,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     width: '90%',
-    alignItems:'center',
+    alignItems: 'center',
     borderRadius: 5,
     marginVertical: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '500',
-    fontSize: 16
-  }
+    color: '#000',
+    fontWeight: '600',
+    fontSize: 16,
+  },
 });
 export default RoutineList;

@@ -4,7 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 
 import Home from './home';
 import RoutineList from './routineList';
-import TaskList from './TaskList'; 
+import TaskList from './TaskList';
+// import Settings from './settings'; 
 
 const Landing = () => {
   const navigation = useNavigation();
@@ -12,14 +13,16 @@ const Landing = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline'},
-    { key: 'routines', title: 'Routines', focusedIcon: 'shield', unfocusedIcon: 'shield-outline' },
-    { key: 'tasks', title: 'Tasks', focusedIcon: 'arrow-right-bold-box', unfocusedIcon: 'arrow-right-bold-box-outline' },
+    { key: 'routines', title: 'Routines', focusedIcon: 'hexagon-multiple', unfocusedIcon: 'hexagon-multiple-outline' },
+    { key: 'tasks', title: 'Tasks', focusedIcon: 'text-box', unfocusedIcon: 'text-box-outline' },
+    // { key: 'settings', title: 'Settings', focusedIcon: 'cheese', unfocusedIcon: 'pizza' },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
     home: () => <Home navigation={navigation} />,
     routines: () => <RoutineList navigation={navigation} />,
     tasks: () => <TaskList navigation={navigation} />,
+    // settings: () => <Settings navigation={navigation} />,
   });
 
   return (
@@ -27,9 +30,9 @@ const Landing = () => {
       navigationState={{ index, routes }}
       onIndexChange={setIndex}
       renderScene={renderScene}
-      activeColor='#000'
+      activeColor='#fff'
       inactiveColor='#636363'
-      barStyle={{ backgroundColor: '#fff' }}
+      barStyle={{ backgroundColor: '#0f0f0f' }}
       theme={{colors: {secondaryContainer: 'transparent'}}}
       sceneAnimationEnabled={true}
       sceneAnimationType='shifting'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { TimerPickerModal } from 'react-native-timer-picker';
 import { Divider, Icon, ToggleButton, Snackbar } from 'react-native-paper';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
+import BottomSheet from '@gorhom/bottom-sheet';
 import {
   calculateTotalDuration,
   calculateTotalSubroutines,
@@ -39,11 +40,28 @@ const RoutineOps = ({ route, navigation }) => {
   const [subroutineTimerVisible, setSubroutineTimerVisible] = useState(false);
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     route.params?.notificationsEnabled || false
   );
+
+  const bottomSheetRef = useRef(null);
+  const snapPoints = ['1%', '70%'];
+  const openBottomSheet = (routine) => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+      setIsBottomSheetOpen(true);
+    }
+  };
+
+  const closeBottomSheet = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.close();
+      setIsBottomSheetOpen(false);
+    }
+  };
 
   const totalSubroutines = subroutines
     ? calculateTotalSubroutines(subroutines)
@@ -150,7 +168,7 @@ const RoutineOps = ({ route, navigation }) => {
       setSubroutineName('');
       setSubroutineDuration(null);
     }
-    closeModal();
+    closeBottomSheet();
   };
 
   const deleteSubroutine = (index) => {
@@ -191,11 +209,11 @@ const RoutineOps = ({ route, navigation }) => {
         <View style={styles.innerContainer}>
           <View style={{ margin: 10, marginBottom: 80 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon source="dots-circle" color="#000" size={24} />
+              <Icon source="dots-circle" color="#fff" size={24} />
               <Text
                 style={[
                   styles.inputLabel,
-                  { paddingVertical: 5, paddingLeft: 10 },
+                  { paddingVertical: 5, paddingLeft: 10, color: '#fff' },
                 ]}
               >
                 New Routine
@@ -226,11 +244,11 @@ const RoutineOps = ({ route, navigation }) => {
               /> */}
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon source="alarm-check" color="#000" size={24} />
+              <Icon source="alarm-check" color="#fff" size={24} />
               <Text
                 style={[
                   styles.inputLabel,
-                  { paddingVertical: 5, paddingLeft: 10 },
+                  { paddingVertical: 5, paddingLeft: 10, color: '#fff' },
                 ]}
               >
                 Alarm
@@ -256,7 +274,6 @@ const RoutineOps = ({ route, navigation }) => {
                     {moment(selectedTime).format('LT')}{' '}
                   </Text>
                 </Pressable>
-                <Text style={styles.alarmText}>Alarm</Text>
                 <Pressable
                   onPress={() => {
                     setNotificationsEnabled(!notificationsEnabled);
@@ -315,11 +332,11 @@ const RoutineOps = ({ route, navigation }) => {
               </View>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon source="timer-outline" color="#000" size={24} />
+              <Icon source="timer-outline" color="#fff" size={24} />
               <Text
                 style={[
                   styles.inputLabel,
-                  { paddingVertical: 5, paddingLeft: 10 },
+                  { paddingVertical: 5, paddingLeft: 10, color: '#fff' },
                 ]}
               >
                 Routine Duration
@@ -345,19 +362,19 @@ const RoutineOps = ({ route, navigation }) => {
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Icon source="gamepad-circle-down" color="#000" size={24} />
+                <Icon source="gamepad-circle-down" color="#fff" size={24} />
                 <Text
                   style={[
                     styles.inputLabel,
-                    { paddingVertical: 10, paddingLeft: 10 },
+                    { paddingVertical: 10, paddingLeft: 10, color: '#fff' },
                   ]}
                 >
                   Subroutines ({totalSubroutines})
                 </Text>
               </View>
               {/* Button to add subroutine */}
-              <TouchableOpacity onPress={openModal}>
-                <Icon source="plus" color="#000" size={30} />
+              <TouchableOpacity onPress={openBottomSheet}>
+                <Icon source="plus" color="#fff" size={30} />
               </TouchableOpacity>
             </View>
 
@@ -386,86 +403,14 @@ const RoutineOps = ({ route, navigation }) => {
                 </TouchableOpacity>
               </View>
             ))}
-            {/* Modal for adding subroutine */}
-            <Modal
-              animationType="slide"
-              transparent={true}
-              statusBarTranslucent={true}
-              visible={modalVisible}
-              onRequestClose={closeModal}
-              hardwareAccelerated={true}
-            >
-              <View style={styles.modalContainer}>
-                <View style={styles.modalTitle}>
-                  <Pressable onPress={closeModal}>
-                    <Icon source="close" color="#000" size={28} />
-                  </Pressable>
-                  <Text style={styles.modalText}>Add a subroutine</Text>
-                </View>
-                <Text style={styles.inputLabel}>Subroutine Name</Text>
-                <View style={styles.detailsContainer}>
-                  <TextInput
-                    style={styles.input}
-                    value={subroutineName}
-                    placeholder="breathe, walk"
-                    placeholderTextColor="#c2c2c2"
-                    cursorColor={'#fff'}
-                    onChangeText={(text) => setSubroutineName(text)}
-                  />
-                </View>
-                <Text style={styles.inputLabel}>Subroutine Duration</Text>
-                <TouchableOpacity
-                  activeOpacity={0}
-                  onPress={() => setSubroutineTimerVisible(true)}
-                >
-                  <View style={[styles.durationContainer]}>
-                    <Icon source="timer-outline" color="#fff" size={26} />
-                    <Text
-                      style={[styles.text, { paddingLeft: 10, color: '#fff' }]}
-                    >
-                      {' '}
-                      {subroutineDuration || 'Set Duration'}{' '}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.modalButtonContainer}>
-                  <Pressable style={styles.modalButton} onPress={addSubroutine}>
-                    <Text style={styles.modalButtonText}>Done</Text>
-                  </Pressable>
-                  <Pressable style={styles.modalButton} onPress={closeModal}>
-                    <Text style={styles.modalButtonText}>Cancel</Text>
-                  </Pressable>
-                </View>
-                {/* TimerPickerModal for setting duration */}
-                <TimerPickerModal
-                  visible={subroutineTimerVisible}
-                  setIsVisible={setSubroutineTimerVisible}
-                  onConfirm={handleSetSubDuration}
-                  modalTitle="Sub Routine Duration"
-                  onCancel={() => setSubroutineTimerVisible(false)}
-                  hideSeconds={true}
-                  closeOnOverlayPress
-                  modalProps={{
-                    overlayOpacity: 0.7,
-                  }}
-                  styles={{
-                    theme: 'dark',
-                  }}
-                />
-              </View>
-              <StatusBar
-                barStyle="light-content"
-                backgroundColor="#000"
-                translucent={true}
-              />
-            </Modal>
           </View>
         </View>
       </ScrollView>
       <TouchableOpacity style={styles.button} onPress={saveRoutine}>
-        <Text style={styles.buttonText}>SAVE ROUTINE</Text>
+        <Text style={styles.buttonText}>Save Routine</Text>
       </TouchableOpacity>
       <Snackbar
+        style={{backgroundColor: '#fff'}}
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
         duration={1500}
@@ -474,10 +419,87 @@ const RoutineOps = ({ route, navigation }) => {
           onPress: () => setSnackbarVisible(false),
         }}
       >
-        <Text style={{ color: '#fff' }}>
+        <Text style={{ color: '#000' }}>
           Notifications {notificationsEnabled ? 'enabled' : 'disabled'}
         </Text>
       </Snackbar>
+      {/* bottom sheet overlay backdrop */}
+      {isBottomSheetOpen && (
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={closeBottomSheet}
+          activeOpacity={1}
+        />
+      )}
+      {/* Bottom Sheet */}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={0}
+        enableOverDrag={false}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        handleIndicatorStyle={{ backgroundColor: '#fff' }}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0)', paddingHorizontal: 20 }}
+        backgroundStyle={{ backgroundColor: '#101010', paddingHorizontal: 20 }}
+        onChange={() => {}}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalTitle}>
+            <Pressable onPress={closeBottomSheet}>
+              <Icon source="close" color="#fff" size={28} />
+            </Pressable>
+            <Text style={styles.modalText}>Add a subroutine</Text>
+          </View>
+          <Text style={styles.inputLabel}>Subroutine Name</Text>
+          <View style={[styles.detailsContainer, {backgroundColor: '#fff'}]}>
+            <TextInput
+              style={styles.input}
+              color='#000'
+              value={subroutineName}
+              placeholder="breathe, walk"
+              placeholderTextColor="#858585"
+              cursorColor={'#000'}
+              onChangeText={(text) => setSubroutineName(text)}
+            />
+          </View>
+          <Text style={[styles.inputLabel, {marginTop: 10}]}>Subroutine Duration</Text>
+          <Pressable 
+            onPress={() => setSubroutineTimerVisible(true)}
+          >
+            <View style={[styles.durationContainer]}>
+              <Icon source="timer-outline" color="#000" size={26} />
+              <Text style={[styles.text, { paddingLeft: 10, color: '#000' }]}>
+                {' '}
+                {subroutineDuration || 'Set Duration'}{' '}
+              </Text>
+            </View>
+          </Pressable>
+          <View style={styles.modalButtonContainer}>
+            <Pressable style={styles.modalButton} onPress={addSubroutine}>
+              <Text style={styles.modalButtonText}>Done</Text>
+            </Pressable>
+            <Pressable style={styles.modalButton} onPress={closeBottomSheet}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+          {/* TimerPickerModal for setting duration */}
+          <TimerPickerModal
+            visible={subroutineTimerVisible}
+            setIsVisible={setSubroutineTimerVisible}
+            onConfirm={handleSetSubDuration}
+            modalTitle="Sub Routine Duration"
+            onCancel={() => setSubroutineTimerVisible(false)}
+            hideSeconds={true}
+            closeOnOverlayPress
+            modalProps={{
+              overlayOpacity: 0.7,
+            }}
+            styles={{
+              theme: 'dark',
+            }}
+          />
+        </View>
+      </BottomSheet>
     </View>
   );
 };
@@ -485,10 +507,14 @@ const RoutineOps = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
   innerContainer: {
     marginHorizontal: '2%',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   input: {
     height: 60,
@@ -499,12 +525,12 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 16,
+    color: '#fff'
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-    top: StatusBar.currentHeight + 15,
+    backgroundColor: '#101010',
+    padding: 5,
   },
   modalTitle: {
     flexDirection: 'row',
@@ -516,6 +542,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '500',
     paddingLeft: 20,
+    color: '#fff'
   },
   durationContainer: {
     flexDirection: 'row',
@@ -524,14 +551,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 25,
     borderRadius: 5,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     elevation: 5,
   },
   detailsContainer: {
     paddingHorizontal: 15,
     marginBottom: 5,
     borderRadius: 5,
-    backgroundColor: '#000',
+    backgroundColor: '#101010',
     elevation: 5,
   },
   modalButtonContainer: {
@@ -539,7 +566,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   modalButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     width: '45%',
     marginTop: 10,
     paddingHorizontal: 20,
@@ -549,7 +576,7 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     fontSize: 18,
-    color: '#fff',
+    color: '#000',
     fontWeight: '600',
     letterSpacing: 1.2,
   },
@@ -561,18 +588,19 @@ const styles = StyleSheet.create({
   button: {
     position: 'absolute',
     bottom: 15,
-    padding: 18,
+    padding: 12,
     borderRadius: 5,
     elevation: 10,
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     width: '90%',
     alignSelf: 'center',
   },
   buttonText: {
-    color: '#fff',
+    fontSize: 18,
+    color: '#000',
     fontWeight: 'bold',
-    letterSpacing: 1.5,
+    letterSpacing: 1,
   },
   subroutineContainer: {
     flexDirection: 'row',
@@ -581,7 +609,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginVertical: 5,
     borderRadius: 5,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#101010',
     elevation: 5,
   },
   alarmContainer: {
@@ -606,7 +634,9 @@ const styles = StyleSheet.create({
   toggleButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#000',
+    backgroundColor: '#101010',
+    borderRadius: 7,
+    paddingHorizontal: 5,
   },
   toggleButton: {
     // Inactive button color
