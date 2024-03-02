@@ -43,7 +43,7 @@ const TaskDetails = ({ route, navigation }) => {
     await saveTasksToStorage(updatedTasks);
 
     // Navigate back to the task list
-    navigation.navigate("TaskList");
+    navigation.navigate("Landing");
   };
 
   const deleteTask = async () => {
@@ -65,7 +65,7 @@ const TaskDetails = ({ route, navigation }) => {
           await saveTasksToStorage(updatedTasks);
 
           // Navigate back to the task list
-          navigation.navigate("TaskList");
+          navigation.navigate("Landing");
         },
         style: "destructive",
       },

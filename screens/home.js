@@ -28,9 +28,6 @@ const Home = () => {
           <Text style={styles.text}>Lets get some stuff done today!</Text>
         </View>
         <Divider style={{margin: 10}}/>
-        <View style={styles.card}>
-        <Text style={styles.text}>Things to do!</Text>
-        </View>
         <View>
           <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("TaskList")}>
               <Text style={[styles.text, {color: '#fff'}]}>Check out tasks</Text>
@@ -44,6 +41,10 @@ const Home = () => {
               <Text style={[styles.text, {color: '#fff'}]}>Clear Data</Text>
               <Icon source="chevron-right" color='#fff' size={28} />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Settings")}>
+              <Text style={[styles.text, {color: '#fff'}]}>Settings</Text>
+              <Icon source="chevron-right" color='#fff' size={28} />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: StatusBar.currentHeight+30
+    paddingTop: StatusBar.currentHeight+10
   },
   innerContainer: {
     marginHorizontal: "5%",

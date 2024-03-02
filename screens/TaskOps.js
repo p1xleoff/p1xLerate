@@ -107,7 +107,7 @@ const TaskOps = ({ route, navigation }) => {
 
       await saveTasksToStorage(updatedTasks);
       setTasks(updatedTasks);
-      navigation.navigate("TaskList");
+      navigation.navigate("Landing");
     } catch (error) {
       console.error("Error in handleAddTask:", error);
     }

@@ -189,7 +189,7 @@ const RoutineDetails = ({ route }) => {
             const updatedRoutines = routines.filter((r) => r.id !== routine.id);
             // save the updated routines back to storage
             saveRoutinesToStorage(updatedRoutines);
-            navigation.navigate('RoutineList');
+            navigation.navigate('Landing');
           },
         },
       ]

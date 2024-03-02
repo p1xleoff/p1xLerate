@@ -13,6 +13,8 @@ import RoutineOps from '../screens/routineOps';
 import RoutineDetails from '../screens/routineDetails';
 import Clear from '../screens/clear';
 import Subroutine from '../screens/subroutine';
+import Landing from '../screens/landing';
+import Settings from '../screens/settings';
 
 const Stack = createStackNavigator();
 
@@ -21,7 +23,9 @@ export const Navigator = () => {
   return (
     <PaperProvider>
     <Stack.Navigator>
+      <Stack.Screen name="Landing" component={Landing} options={{headerShown: false}}/>
       <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
+      <Stack.Screen name="Settings" component={Settings} options={{headerShown: false}}/>
       <Stack.Screen name="RoutineList" component={RoutineList} />
       <Stack.Screen name="RoutineDetails" component={RoutineDetails} options={{ title: 'Routine Details', headerRight: () => (
             <IconButton icon="close" iconColor={'#000'} size={32} onPress={() => { navigation.navigate('RoutineList'); }} /> ) }}/>

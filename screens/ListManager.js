@@ -24,7 +24,7 @@ const ListManager = ({ navigation }) => {
 
   const switchList = (listId, listName) => {
     dispatch({ type: 'SELECT_LIST', payload: listId });
-    navigation.navigate('TaskList');
+    navigation.navigate('Landing');
   };
 
   const handleAddList = () => {

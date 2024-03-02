@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Button,
+  StatusBar,
   Pressable,
 
 } from 'react-native';
@@ -75,7 +75,8 @@ const RoutineList = ({ navigation, route, routine }) => {
         );
         await saveRoutinesToStorage(updatedRoutines);
         setRoutines(updatedRoutines);
-        navigation.navigate('RoutineList');
+        navigation.navigate('Landing');
+        hideModal();
       } catch (error) {
         console.error('Error deleting routine:', error);
       }
@@ -195,7 +196,7 @@ const RoutineList = ({ navigation, route, routine }) => {
       <View style={styles.addTaskButton}>
         <TouchableOpacity
           onPress={() => navigation.navigate('RoutineOps')} >
-          <Icon source="plus" color="#fff" size={28} style={styles.addIcon} />
+          <Icon source="plus" color="#000" size={28} style={styles.addIcon} />
         </TouchableOpacity>
       </View>
     </View>
@@ -205,10 +206,11 @@ const RoutineList = ({ navigation, route, routine }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#101010',
+    backgroundColor: '#000',
   },
   innerContainer: {
     //marginHorizontal: "2%",
+    top: StatusBar.currentHeight+10,
   },
   header: {
     fontSize: 28,
@@ -239,7 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 60,
     height: 60,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     borderRadius: 100,
     elevation: 10,
   },

@@ -5,7 +5,7 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  Button,
+  StatusBar,
   Alert,
   StyleSheet,
 } from "react-native";
@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     marginHorizontal: "5%",
+    top: StatusBar.currentHeight+10,
   },
   titleContainer: {
     flexDirection: "row",
