@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Button,
@@ -6,27 +6,33 @@ import {
   Text,
   StyleSheet,
   TextInput,
-} from "react-native";
-import { Divider, Icon } from "react-native-paper";
-import { saveTasksToStorage, fetchTasksFromStorage } from "../config/dbHelper";
-import { useTasks } from "../config/tasksContext";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+  Keyboard
+} from 'react-native';
+import { Divider, Icon } from 'react-native-paper';
+import { saveTasksToStorage, fetchTasksFromStorage } from '../config/dbHelper';
+import { useTasks } from '../config/tasksContext';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-const TaskOps = ({ route, navigation }) => {
+const TaskOps = ({ route, navigation, closeBottomSheet, taskId, updateTaskDetails }) => {
   const { state, dispatch } = useTasks();
   const { selectedListId } = state;
-  const { taskId } = route.params || {};
+  // const { taskId } = route.params || {};
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [tasks, setTasks] = useState([]);
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [dueDate, setDueDate] = useState(new Date());
-  const [formattedDueDate, setFormattedDueDate] = useState("");
-  const [formattedDueTime, setFormattedDueTime] = useState("");
+  const [formattedDueDate, setFormattedDueDate] = useState('');
+  const [formattedDueTime, setFormattedDueTime] = useState('');
 
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
+  const [scheduleVisible, setScheduleVisible] = useState(false);
+
+  const toggleSchedule = () => {
+    setScheduleVisible(!scheduleVisible);
+  };
 
   const showTimePicker = () => {
     setTimePickerVisibility(true);
@@ -46,8 +52,8 @@ const TaskOps = ({ route, navigation }) => {
       setDueDate(selectedTime);
 
       const formattedTime = selectedTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
+        hour: '2-digit',
+        minute: '2-digit',
       });
       setFormattedDueTime(formattedTime);
     }
@@ -64,8 +70,8 @@ const TaskOps = ({ route, navigation }) => {
         const taskDetails = storedTasks.find((task) => task.id === taskId);
 
         if (taskDetails) {
-          setTitle(taskDetails.title || "");
-          setDescription(taskDetails.description || "");
+          setTitle(taskDetails.title || '');
+          setDescription(taskDetails.description || '');
 
           setDueDate(
             taskDetails.dueDate ? new Date(taskDetails.dueDate) : new Date()
@@ -82,7 +88,7 @@ const TaskOps = ({ route, navigation }) => {
       const storedTasks = await fetchTasksFromStorage();
       setTasks(storedTasks);
     } catch (error) {
-      console.error("Error in fetchTasks:", error);
+      console.error('Error in fetchTasks:', error);
     }
   };
 
@@ -91,10 +97,10 @@ const TaskOps = ({ route, navigation }) => {
       id: taskId || Date.now().toString(),
       title,
       description,
-      dueDate: dueDate.toISOString().split("T")[0],
+      dueDate: dueDate.toISOString().split('T')[0],
       dueTime: dueDate.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
+        hour: '2-digit',
+        minute: '2-digit',
       }),
       completed: 0,
       listId: selectedListId,
@@ -106,10 +112,14 @@ const TaskOps = ({ route, navigation }) => {
         : [...tasks, newTask];
 
       await saveTasksToStorage(updatedTasks);
-      setTasks(updatedTasks);
-      navigation.navigate("Landing");
+      // setTasks(updatedTasks);
+      setTitle('');
+      setDescription('');
+      taskId != null && updateTaskDetails();
+      closeBottomSheet();
+      Keyboard.dismiss();
     } catch (error) {
-      console.error("Error in handleAddTask:", error);
+      console.error('Error in handleAddTask:', error);
     }
   };
 
@@ -126,11 +136,10 @@ const TaskOps = ({ route, navigation }) => {
     if (date) {
       setDueDate(date);
 
-
       const formattedDate = date.toLocaleDateString([], {
-        day: "numeric",
-        month: "short",
-        weekday: "short",
+        day: 'numeric',
+        month: 'short',
+        weekday: 'short',
       });
 
       setFormattedDueDate(formattedDate);
@@ -138,45 +147,72 @@ const TaskOps = ({ route, navigation }) => {
   };
 
   const formatTime = (time) => {
-    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.innerContainer}>
-        <Text style={styles.title}>New Task</Text>
-        {/* Input fields for task details */}
-        <View style={styles.detailsContainer}>
-          <TextInput
-            style={[styles.input, { marginBottom: 20 }]}
-            placeholder="What would you like to do?"
-            placeholderTextColor={'#888'}
-            value={title}
-            selectionColor={"black"}
-            activeUnderlineColor="#fff"
-            onChangeText={(text) => setTitle(text)}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Description"
-            placeholderTextColor={'#888'}
-            value={description}
-            selectionColor={"black"}
-            onChangeText={(text) => setDescription(text)}
-          />
-        </View>
-
-        <Text style={styles.title}>Date and Time</Text>
-
-        {/* Date Picker Button */}
-        <View style={[styles.detailsContainer, { flexDirection: 'row' }]}>
-          <View style={styles.dateTimeContainer}>
-            <TouchableOpacity onPress={showDatePicker} style={styles.icon}>
-              <Icon source="calendar-outline" color="#000" size={35} />
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5}}>
+      <Text style={styles.title}>{taskId ? 'Update Task' : 'New Task'}</Text>
+      <TouchableOpacity onPress={closeBottomSheet}>
+              <Icon source="close" color="tomato" size={26} />
             </TouchableOpacity>
-            <Text style={styles.selectedDateTime}>{formattedDueDate}</Text>
-            {/* Date Picker */}
+      </View>
+      <View style={styles.detailsContainer}>
+        <TextInput
+          style={[styles.input, { marginBottom: 10 }]}
+          placeholder="Task name"
+          placeholderTextColor={'#888'}
+          value={title}
+          selectionColor={'black'}
+          activeUnderlineColor="#fff"
+          onChangeText={(text) => setTitle(text)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Description (Optional)"
+          placeholderTextColor={'#888'}
+          value={description}
+          selectionColor={'black'}
+          onChangeText={(text) => setDescription(text)}
+        />
+      </View>
+      {/* date and time container */}
+      <View>
+        <TouchableOpacity onPress={toggleSchedule}>
+          {scheduleVisible ? (
+            <Text style={styles.title}></Text>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, color: '#fff', fontWeight: 'bold' }}>
+                Schedule
+              </Text>
+              <Icon source="chevron-right" color="#fff" size={30} />
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+      {scheduleVisible && (
+        <View style={styles.detailsContainer}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 20,
+            }}
+          >
+            <Text style={styles.title}>Schedule</Text>
+            <TouchableOpacity onPress={toggleSchedule}>
+              <Icon source="close" color="tomato" size={26} />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity onPress={showDatePicker} style={styles.dateTime}>
+              <Icon source="calendar-outline" color="#fff" size={30} />
+              <Text style={styles.selectedDateTime}>
+                {formattedDueDate || 'Date'}
+              </Text>
+            </TouchableOpacity>
             <DateTimePickerModal
               isVisible={isDatePickerVisible}
               mode="date"
@@ -184,9 +220,13 @@ const TaskOps = ({ route, navigation }) => {
               onCancel={hideDatePicker}
             />
           </View>
-          <View style={styles.dateTimeContainer}>
-            <TouchableOpacity style={styles.icon} onPress={showTimePicker}>
-              <Icon source="clock-time-eight-outline" color="#000" size={35} />
+          <Divider style={{ marginVertical: 10 }} />
+          <View>
+            <TouchableOpacity onPress={showTimePicker} style={styles.dateTime}>
+              <Icon source="clock-time-eight-outline" color="#fff" size={30} />
+              <Text style={styles.selectedDateTime}>
+                {formattedDueTime || 'Time'}
+              </Text>
             </TouchableOpacity>
             <DateTimePickerModal
               isVisible={isTimePickerVisible}
@@ -194,12 +234,28 @@ const TaskOps = ({ route, navigation }) => {
               onConfirm={handleTimeConfirm}
               onCancel={hideTimePicker}
             />
-            <Text style={styles.selectedDateTime}>{formattedDueTime}</Text>
+          </View>
+          <Divider style={{ marginVertical: 10 }} />
+          <View style={{ marginBottom: 10 }}>
+            <TouchableOpacity onPress={showTimePicker} style={styles.dateTime}>
+              <Icon source="repeat" color="#fff" size={30} />
+              <Text style={styles.selectedDateTime}>
+                {formattedDueTime || 'Repeat'}
+              </Text>
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isTimePickerVisible}
+              mode="time"
+              onConfirm={handleTimeConfirm}
+              onCancel={hideTimePicker}
+            />
           </View>
         </View>
-      </View>
+      )}
       <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-        <Text style={styles.buttonText}>{taskId ? "UPDATE TASK" : "ADD TASK"}</Text>
+        <Text style={styles.buttonText}>
+          {taskId ? 'UPDATE TASK' : 'ADD TASK'}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -208,38 +264,35 @@ const TaskOps = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
-  },
-  innerContainer: {
-    padding: 15
+    backgroundColor: '#101010',
   },
   title: {
-    fontWeight: "bold",
-    paddingLeft: 5,
+    fontWeight: 'bold',
     marginBottom: 5,
-    color: '#fff'
+    color: '#fff',
+    fontSize: 18,
   },
   input: {
     height: 50,
-    fontWeight: "400",
+    fontWeight: '400',
     paddingLeft: 10,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     elevation: 10,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   selectedDateTime: {
     fontSize: 16,
-    fontWeight: "bold",
-    paddingTop: 10,
-    color: '#fff'
+    fontWeight: 'bold',
+    paddingLeft: 20,
+    color: '#fff',
   },
   detailsContainer: {
-    paddingVertical: 20,
+    paddingVertical: 10,
     paddingHorizontal: 15,
-    marginBottom: 25,
+    marginBottom: 5,
     borderRadius: 5,
-    backgroundColor: "#101010",
+    backgroundColor: '#1a1a1a',
     elevation: 5,
   },
   dateTimeContainer: {
@@ -250,26 +303,33 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 7,
     borderRadius: 30,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     elevation: 5,
   },
   button: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 15,
     padding: 12,
     borderRadius: 5,
     elevation: 10,
-    alignItems: "center",
-    backgroundColor: "#fff",
-    width: '90%',
-    alignSelf: "center"
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    width: '100%',
+    alignSelf: 'center',
   },
   buttonText: {
     color: '#000',
     fontSize: 18,
     fontWeight: '600',
-    letterSpacing: 1
-  }
+    letterSpacing: 1,
+  },
+  dateTime: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    // backgroundColor: 'coral',
+    borderRadius: 5,
+  },
 });
 
 export default TaskOps;

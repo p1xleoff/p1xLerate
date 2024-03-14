@@ -15,6 +15,7 @@ import Clear from '../screens/clear';
 import Subroutine from '../screens/subroutine';
 import Landing from '../screens/landing';
 import Settings from '../screens/settings';
+import Tester from '../screens/tester';
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,7 @@ export const Navigator = () => {
         <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
         <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
         <Stack.Screen name="RoutineList" component={RoutineList} />
+        <Stack.Screen name="Tester" component={Tester} />
         <Stack.Screen name="RoutineDetails" component={RoutineDetails} options={{ title: 'Routine Details' }} />
         <Stack.Screen name="TaskList" component={TaskList} options={{ title: 'Tasks' }} />
         <Stack.Screen name="TaskOps" component={TaskOps} options={{ title: 'Add a task' }} />

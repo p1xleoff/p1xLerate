@@ -35,6 +35,9 @@ const Home = () => {
         </View>
         <Divider style={{margin: 10}}/>
         <View>
+        <TouchableOpacity onPress={() => navigation.navigate("Tester")}>
+          <Icon source="open-in-app" color='#fff' size={32} />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
