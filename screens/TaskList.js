@@ -25,10 +25,10 @@ const TaskList = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const [selectedListName, setSelectedListName] = useState('My Tasks');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [isListSheetOpen, setListSheetOpen] = useState(false);
+  // const [isListSheetOpen, setListSheetOpen] = useState(false);
 
   const bottomSheetRef = useRef(null);
-  const listSheetRef = useRef(null);
+  // const listSheetRef = useRef(null);
 
   //new task bottom sheet
   const openBottomSheet = () => {
@@ -46,19 +46,19 @@ const TaskList = ({ navigation }) => {
   };
 
   //list bottom sheet
-  const openListBottomSheet = () => {
-    if (listSheetRef.current) {
-      listSheetRef.current.expand();
-      setListSheetOpen(true);
-    }
-  };
-  const closeListBottomSheet = () => {
-    if (listSheetRef.current) {
-      listSheetRef.current.close();
-      setListSheetOpen(false);
-      Keyboard.dismiss();
-    }
-  };
+  // const openListBottomSheet = () => {
+  //   if (listSheetRef.current) {
+  //     listSheetRef.current.expand();
+  //     setListSheetOpen(true);
+  //   }
+  // };
+  // const closeListBottomSheet = () => {
+  //   if (listSheetRef.current) {
+  //     listSheetRef.current.close();
+  //     setListSheetOpen(false);
+  //     Keyboard.dismiss();
+  //   }
+  // };
 
   const fetchTasks = async () => {
     const storedTasks = await fetchTasksFromStorage();
@@ -110,7 +110,7 @@ const TaskList = ({ navigation }) => {
 
   useEffect(() => {
     setSelectedListName(
-      lists.find((list) => list.id === selectedListId)?.name || 'Default List'
+      lists.find((list) => list.id === selectedListId)?.name || 'My Tasks'
     );
   }, [selectedListId, lists]);
 
@@ -142,8 +142,8 @@ const TaskList = ({ navigation }) => {
             <Text style={styles.title}>{selectedListName}</Text>
             <TouchableOpacity
               style={styles.listSwitchButton}
-              //  onPress={() => navigation.navigate("ListManager")}
-              onPress={openListBottomSheet}
+               onPress={() => navigation.navigate("ListManager")}
+              // onPress={openListBottomSheet}
             >
               <Icon source="format-list-checks" color="#fff" size={28} />
             </TouchableOpacity>
@@ -237,7 +237,7 @@ const TaskList = ({ navigation }) => {
         <TaskOps route={{}} closeBottomSheet={closeBottomSheet} />
       </BottomSheet>
 
-      <BottomSheet
+      {/* <BottomSheet
         ref={listSheetRef}
         index={-1}
         enableOverDrag={false}
@@ -249,7 +249,7 @@ const TaskList = ({ navigation }) => {
         onChange={() => {}}
       >
         <ListManager closeListBottomSheet={closeListBottomSheet} />
-      </BottomSheet>
+      </BottomSheet> */}
     </Provider>
   );
 };

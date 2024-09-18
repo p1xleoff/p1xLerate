@@ -24,13 +24,13 @@ const Home = () => {
     <View style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.headerContainer}>
-          <Text style={styles.header}>p1xLerate</Text>
+          <Text style={styles.header}>Accelerate</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
           <Icon source="cog" color='#fff' size={28} />
           </TouchableOpacity>
         </View>
         <View>
-          <Text style={{ fontSize: 22, color: '#fff' }}>hello there, p1xLe</Text>
+          <Text style={{ fontSize: 22, color: '#fff' }}>hello there!</Text>
           <Text style={styles.text}>Lets get some stuff done today!</Text>
         </View>
         <Divider style={{margin: 10}}/>

@@ -296,46 +296,46 @@ const RoutineDetails = ({ route }) => {
     return routine.subroutines.every((subroutine) => subroutine.completed);
   };
   //calculate routine status | check next occurenece of routine | show day and time
-  const calculateRoutineStatus = () => {
-    const today = moment().format('dddd').toLowerCase();
-    const selectedDays = routine.selectedDays;
+  // const calculateRoutineStatus = () => {
+  //   const today = moment().format('dddd').toLowerCase();
+  //   const selectedDays = routine.selectedDays;
   
-    // Create an array of selected days sorted by their order in a week
-    const sortedDays = Object.keys(selectedDays).sort(
-      (a, b) => moment().isoWeekday(a) - moment().isoWeekday(b)
-    );
+  //   // Create an array of selected days sorted by their order in a week
+  //   const sortedDays = Object.keys(selectedDays).sort(
+  //     (a, b) => moment().isoWeekday(a) - moment().isoWeekday(b)
+  //   );
   
-    // Find the first selected day that is equal to or greater than the current day
-    const nextDay = sortedDays.find(
-      (day) =>
-        selectedDays[day] &&
-        moment().isoWeekday(day) >= moment().isoWeekday(today)
-    );
+  //   // Find the first selected day that is equal to or greater than the current day
+  //   const nextDay = sortedDays.find(
+  //     (day) =>
+  //       selectedDays[day] &&
+  //       moment().isoWeekday(day) >= moment().isoWeekday(today)
+  //   );
   
-    if (nextDay) {
-      const completionStatus = isRoutineComplete()
-        ? <Text style={{color: 'lightgreen'}}>Completed Today</Text>
-        : <Text style={{color: 'coral'}}>Not Completed Today</Text>
-      const nextOccurrenceWithTime = moment()
-        .isoWeekday(nextDay)
-        .set('hour', moment(routine.selectedTime).hour())
-        .set('minute', moment(routine.selectedTime).minute());
+  //   if (nextDay) {
+  //     const completionStatus = isRoutineComplete()
+  //       ? <Text style={{color: 'lightgreen'}}>Completed Today</Text>
+  //       : <Text style={{color: 'coral'}}>Not Completed Today</Text>
+  //     const nextOccurrenceWithTime = moment()
+  //       .isoWeekday(nextDay)
+  //       .set('hour', moment(routine.selectedTime).hour())
+  //       .set('minute', moment(routine.selectedTime).minute());
         
-      // Style for selected days
-      const selectedDaysStyle = isRoutineComplete()
-        ? { color: '#9f9f9f' }
-        : { color: '#9f9f9f' };
+  //     // Style for selected days
+  //     const selectedDaysStyle = isRoutineComplete()
+  //       ? { color: '#9f9f9f' }
+  //       : { color: '#9f9f9f' };
       
-      return (
-        <Text style={selectedDaysStyle}>
-          {completionStatus}{'\n'}
-          Next: {nextOccurrenceWithTime.format('dddd, LT')}
-        </Text>
-      );
-    } else {
-      return <Text style={{color: '#9f9f9f'}}>No Days Selected</Text>;
-    }
-  };
+  //     return (
+  //       <Text style={selectedDaysStyle}>
+  //         {completionStatus}{'\n'}
+  //         Next: {nextOccurrenceWithTime.format('dddd, LT')}
+  //       </Text>
+  //     );
+  //   } else {
+  //     return <Text style={{color: '#9f9f9f'}}>No Days Selected</Text>;
+  //   }
+  // };
   
 
   const toggleAllSubroutines = () => {
@@ -435,7 +435,7 @@ const RoutineDetails = ({ route }) => {
               ))}
             </View>
           </View>
-          <Text style={styles.routineStatus}>{calculateRoutineStatus()}</Text>
+          {/* <Text style={styles.routineStatus}>{calculateRoutineStatus()}</Text> */}
         </View>
         <View style={{ flex: 1 }}>
           <View

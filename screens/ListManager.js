@@ -37,8 +37,8 @@ const ListManager = ({ navigation, closeListBottomSheet }) => {
 
   const switchList = (listId, listName) => {
     dispatch({ type: 'SELECT_LIST', payload: listId });
-    // navigation.navigate('Landing');
-    closeListBottomSheet();
+    navigation.navigate('Landing');
+    // closeListBottomSheet();
   };
 
   const handleAddList = () => {

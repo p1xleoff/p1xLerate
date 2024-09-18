@@ -5,24 +5,24 @@ import { useNavigation } from '@react-navigation/native';
 import Home from './home';
 import RoutineList from './routineList';
 import TaskList from './TaskList';
-// import Settings from './settings'; 
+import Settings from './settings'; 
 
 const Landing = () => {
   const navigation = useNavigation();
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline'},
-    { key: 'routines', title: 'Routines', focusedIcon: 'hexagon-multiple', unfocusedIcon: 'hexagon-multiple-outline' },
     { key: 'tasks', title: 'Tasks', focusedIcon: 'text-box', unfocusedIcon: 'text-box-outline' },
-    // { key: 'settings', title: 'Settings', focusedIcon: 'cheese', unfocusedIcon: 'pizza' },
+    { key: 'routines', title: 'Routines', focusedIcon: 'hexagon-multiple', unfocusedIcon: 'hexagon-multiple-outline' },
+    { key: 'settings', title: 'Settings', focusedIcon: 'cog', unfocusedIcon: 'cog-outline' },
+    // { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline'},
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    home: () => <Home navigation={navigation} />,
+    // home: () => <Home navigation={navigation} />,
     routines: () => <RoutineList navigation={navigation} />,
     tasks: () => <TaskList navigation={navigation} />,
-    // settings: () => <Settings navigation={navigation} />,
+    settings: () => <Settings navigation={navigation} />,
   });
 
   return (

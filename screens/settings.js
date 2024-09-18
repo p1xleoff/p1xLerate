@@ -10,7 +10,7 @@ const Settings = () => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <View>
+        {/* <View>
             <View style={styles.floatbutton}>
                 <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
                 <Icon source="chevron-left" color="#000" size={32} />
@@ -22,7 +22,7 @@ const Settings = () => {
                     p1xLe
                 </Text>
             </View>
-        </View>
+        </View> */}
         <View>
           <TouchableOpacity style={styles.links} onPress={() => navigation.navigate("Clear")}>
               <Text style={styles.text}>Clear Data</Text>
@@ -37,10 +37,6 @@ const Settings = () => {
           </TouchableOpacity>
         </View>
       </View>
-          <TouchableOpacity style={[{flexDirection: 'row', position: 'absolute', bottom: 10, justifyContent: 'center', alignSelf: 'center'}]}>
-              <Text style={styles.text}>Made by p1xLe with </Text>
-              <Icon source="heart" color='tomato' size={24} />
-          </TouchableOpacity>
     </View>
   );
 };
