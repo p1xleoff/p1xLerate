@@ -1,7 +1,3 @@
-Libraries:
+<h3>Accelerate</h3>
 
-react-native-async-storage/async-storage
-react-native-modal-datetime-picker
-react-navigation/native"
-react-navigation/stack"
-react-native-paper
+To-Do List and Routine planner application. Built with React Native using JavaScript
